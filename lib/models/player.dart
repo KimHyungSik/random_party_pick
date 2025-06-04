@@ -1,17 +1,74 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+class Player {
+  final String id;
+  final String name;
+  final DateTime joinedAt;
+  final bool isHost;
+  final String? cardColor; // 'red' or 'green'
 
-part 'player.freezed.dart';
-part 'player.g.dart';
+  const Player({
+    required this.id,
+    required this.name,
+    required this.joinedAt,
+    this.isHost = false,
+    this.cardColor,
+  });
 
-@freezed
-class Player with _$Player {
-  const factory Player({
-    required String id,
-    required String name,
-    required DateTime joinedAt,
-    @Default(false) bool isHost,
-    String? cardColor, // 'red' or 'green'
-  }) = _Player;
+  // JSON 변환
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'joinedAt': joinedAt.toIso8601String(),
+      'isHost': isHost,
+      'cardColor': cardColor,
+    };
+  }
 
-  factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);
+  factory Player.fromJson(Map<String, dynamic> json) {
+    return Player(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      joinedAt: DateTime.parse(json['joinedAt'] as String),
+      isHost: json['isHost'] as bool? ?? false,
+      cardColor: json['cardColor'] as String?,
+    );
+  }
+
+  // copyWith 메서드
+  Player copyWith({
+    String? id,
+    String? name,
+    DateTime? joinedAt,
+    bool? isHost,
+    String? cardColor,
+  }) {
+    return Player(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      joinedAt: joinedAt ?? this.joinedAt,
+      isHost: isHost ?? this.isHost,
+      cardColor: cardColor ?? this.cardColor,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Player &&
+        other.id == id &&
+        other.name == name &&
+        other.joinedAt == joinedAt &&
+        other.isHost == isHost &&
+        other.cardColor == cardColor;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(id, name, joinedAt, isHost, cardColor);
+  }
+
+  @override
+  String toString() {
+    return 'Player(id: $id, name: $name, joinedAt: $joinedAt, isHost: $isHost, cardColor: $cardColor)';
+  }
 }

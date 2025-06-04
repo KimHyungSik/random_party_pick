@@ -42,16 +42,6 @@ final createRoomProvider = FutureProvider.family<Room, CreateRoomParams>((ref, p
   );
 });
 
-// 방 참가 Provider
-final joinRoomProvider = FutureProvider.family<bool, JoinRoomParams>((ref, params) async {
-  final repository = ref.watch(gameRepositoryProvider);
-  return repository.joinRoom(
-    inviteCode: params.inviteCode,
-    playerId: params.playerId,
-    playerName: params.playerName,
-  );
-});
-
 // ===== 5. Parameter Classes =====
 
 class CreateRoomParams {

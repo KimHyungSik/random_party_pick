@@ -21,7 +21,7 @@ class WaitingRoomScreen extends ConsumerWidget {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
-              (route) => false,
+          (route) => false,
         );
       });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -36,7 +36,8 @@ class WaitingRoomScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => _showLeaveDialog(context, ref, roomId, currentUserId),
+          onPressed: () =>
+              _showLeaveDialog(context, ref, roomId, currentUserId),
         ),
       ),
       body: Container(
@@ -57,7 +58,7 @@ class WaitingRoomScreen extends ConsumerWidget {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const HomeScreen()),
-                      (route) => false,
+                  (route) => false,
                 );
               });
               return const Center(child: Text('방을 찾을 수 없습니다.'));
@@ -78,27 +79,31 @@ class WaitingRoomScreen extends ConsumerWidget {
             return _buildWaitingRoom(context, ref, room, currentUserId);
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
-                Text('오류가 발생했습니다: $error'),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('돌아가기'),
-                ),
-              ],
-            ),
-          ),
+          error: (error, stack) {
+            print("LOGEE ERROR $error");
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text('오류가 발생했습니다: $error'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('돌아가기'),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildWaitingRoom(BuildContext context, WidgetRef ref, Room room, String currentUserId) {
+  Widget _buildWaitingRoom(
+      BuildContext context, WidgetRef ref, Room room, String currentUserId) {
     final isHost = room.hostId == currentUserId;
     final playerCount = room.players.length;
 
@@ -145,7 +150,8 @@ class WaitingRoomScreen extends ConsumerWidget {
                           const SizedBox(width: 8),
                           IconButton(
                             onPressed: () {
-                              Clipboard.setData(ClipboardData(text: room.inviteCode));
+                              Clipboard.setData(
+                                  ClipboardData(text: room.inviteCode));
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('초대코드가 복사되었습니다')),
                               );
@@ -161,7 +167,8 @@ class WaitingRoomScreen extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () => _showQRCode(context, room.inviteCode),
+                          onPressed: () =>
+                              _showQRCode(context, room.inviteCode),
                           icon: const Icon(Icons.qr_code),
                           label: const Text('QR 코드 보기'),
                         ),
@@ -243,9 +250,8 @@ class WaitingRoomScreen extends ConsumerWidget {
                           child: Row(
                             children: [
                               CircleAvatar(
-                                backgroundColor: player.isHost
-                                    ? Colors.orange
-                                    : Colors.blue,
+                                backgroundColor:
+                                    player.isHost ? Colors.orange : Colors.blue,
                                 child: Text(
                                   player.name[0].toUpperCase(),
                                   style: const TextStyle(
@@ -321,9 +327,7 @@ class WaitingRoomScreen extends ConsumerWidget {
                   colors: [Colors.red, Colors.pink],
                 ),
                 child: Text(
-                  playerCount >= 2
-                      ? '게임 시작'
-                      : '최소 2명 이상 필요',
+                  playerCount >= 2 ? '게임 시작' : '최소 2명 이상 필요',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -419,7 +423,8 @@ class WaitingRoomScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _startGame(BuildContext context, WidgetRef ref, String roomId) async {
+  Future<void> _startGame(
+      BuildContext context, WidgetRef ref, String roomId) async {
     try {
       final repository = ref.read(gameRepositoryProvider);
       await repository.startGame(roomId);
@@ -432,7 +437,8 @@ class WaitingRoomScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _showLeaveDialog(BuildContext context, WidgetRef ref, String roomId, String playerId) async {
+  Future<void> _showLeaveDialog(BuildContext context, WidgetRef ref,
+      String roomId, String playerId) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -461,7 +467,7 @@ class WaitingRoomScreen extends ConsumerWidget {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen()),
-                (route) => false,
+            (route) => false,
           );
         }
       } catch (e) {

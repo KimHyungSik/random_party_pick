@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/room.dart';
 import '../models/player.dart';
 import '../services/firebase_service.dart';
@@ -37,12 +39,13 @@ class GameRepository {
       players: {hostId: host},
     );
 
+    // 직접 toJson() 사용 가능
     await FirebaseService.getRoomRef(roomId).set(room.toJson());
     return room;
   }
 
   // 방 참가
-  Future<bool> joinRoom({
+  Future<String> joinRoom({
     required String inviteCode,
     required String playerId,
     required String playerName,
@@ -90,7 +93,7 @@ class GameRepository {
           .child(playerId)
           .set(newPlayer.toJson());
 
-      return true;
+      return roomId;
     } catch (e) {
       throw Exception('방 참가 실패: ${e.toString()}');
     }
@@ -123,11 +126,12 @@ class GameRepository {
       final greenPlayerIds = shuffledIds.skip(room.redCardCount).toList();
 
       // 플레이어들에게 카드 색깔 배정
-      final updatedPlayers = <String, Player>{};
+      final updatedPlayersMap = <String, Map<String, dynamic>>{};
       for (final playerId in playerIds) {
         final player = room.players[playerId]!;
         final cardColor = redPlayerIds.contains(playerId) ? 'red' : 'green';
-        updatedPlayers[playerId] = player.copyWith(cardColor: cardColor);
+        final updatedPlayer = player.copyWith(cardColor: cardColor);
+        updatedPlayersMap[playerId] = updatedPlayer.toJson();
       }
 
       // 방 상태 업데이트
@@ -135,7 +139,7 @@ class GameRepository {
         'status': 'playing',
         'redPlayers': redPlayerIds,
         'greenPlayers': greenPlayerIds,
-        'players': updatedPlayers.map((k, v) => MapEntry(k, v.toJson())),
+        'players': updatedPlayersMap,
       });
     } catch (e) {
       throw Exception('게임 시작 실패: ${e.toString()}');
@@ -175,12 +179,20 @@ class GameRepository {
         } else {
           // 새로운 방장 지정
           final newHostId = remainingPlayers.keys.first;
-          final updatedPlayers = remainingPlayers.map((k, v) =>
-              MapEntry(k, k == newHostId ? v.copyWith(isHost: true) : v));
+          final updatedPlayersMap = <String, Map<String, dynamic>>{};
+
+          for (final entry in remainingPlayers.entries) {
+            final playerId = entry.key;
+            final player = entry.value;
+            final updatedPlayer = playerId == newHostId
+                ? player.copyWith(isHost: true)
+                : player;
+            updatedPlayersMap[playerId] = updatedPlayer.toJson();
+          }
 
           await roomRef.update({
             'hostId': newHostId,
-            'players': updatedPlayers.map((k, v) => MapEntry(k, v.toJson())),
+            'players': updatedPlayersMap,
           });
         }
       }
