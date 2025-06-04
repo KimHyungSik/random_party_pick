@@ -80,7 +80,7 @@ class WaitingRoomScreen extends ConsumerWidget {
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) {
-            Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -302,6 +302,32 @@ class WaitingRoomScreen extends ConsumerWidget {
                                     ),
                                   ),
                                 ),
+                              // 방장만 추방 버튼 표시 (자신은 제외)
+                              if (isHost && player.id != currentUserId)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: IconButton(
+                                    onPressed: () => _showKickDialog(
+                                      context,
+                                      ref,
+                                      room.id,
+                                      player.id,
+                                      player.name,
+                                      currentUserId,
+                                    ),
+                                    icon: const Icon(
+                                      Icons.person_remove,
+                                      color: Colors.red,
+                                      size: 20,
+                                    ),
+                                    tooltip: '${player.name} 추방',
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.red.shade50,
+                                      foregroundColor: Colors.red,
+                                      minimumSize: const Size(32, 32),
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         );
@@ -420,6 +446,55 @@ class WaitingRoomScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _showKickDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String roomId,
+    String playerId,
+    String playerName,
+    String hostId,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('플레이어 추방'),
+        content: Text('$playerName님을 방에서 추방하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('추방'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        final repository = ref.read(gameRepositoryProvider);
+        await repository.kickPlayer(roomId, playerId, hostId);
+        
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$playerName님을 추방했습니다.')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('추방 실패: $e')),
+          );
+        }
+      }
+    }
   }
 
   Future<void> _startGame(
