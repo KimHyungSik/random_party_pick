@@ -270,4 +270,40 @@ class GameRepository {
     return String.fromCharCodes(Iterable.generate(
         6, (_) => chars.codeUnitAt(random.nextInt(chars.length))));
   }
+
+  Future<Room?> getRoomByInviteCode(String inviteCode) async {
+    try {
+      final snapshot = await FirebaseService.roomsRef
+          .orderByChild('inviteCode')
+          .equalTo(inviteCode)
+          .once();
+
+      if (snapshot.snapshot.value == null) {
+        return null;
+      }
+
+      final roomsData = Map<String, dynamic>.from(
+          snapshot.snapshot.value as Map);
+      if (roomsData.isEmpty) return null;
+
+      final roomData = Map<String, dynamic>.from(roomsData.values.first);
+      return Room.fromJson(roomData);
+    } catch (e) {
+      return null;
+    }
+  }
+
+// 여러 초대코드들의 방 상태 확인
+  Future<List<Room>> getValidRoomsByInviteCodes(List<String> inviteCodes) async {
+    final validRooms = <Room>[];
+
+    for (final inviteCode in inviteCodes) {
+      final room = await getRoomByInviteCode(inviteCode);
+      if (room != null && room.status == 'waiting') {
+        validRooms.add(room);
+      }
+    }
+
+    return validRooms;
+  }
 }
