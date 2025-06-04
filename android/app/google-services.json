@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "612666662794",
+    "project_id": "random-party-pick",
+    "storage_bucket": "random-party-pick.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612666662794:android:f85b2ccdc7c8297d157273",
+        "android_client_info": {
+          "package_name": "kr.sik.random_party_pick"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwXEw1QZQuWiJgqjvapvAaLWo-eUusMyc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
