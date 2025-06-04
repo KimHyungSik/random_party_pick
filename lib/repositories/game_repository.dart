@@ -77,11 +77,6 @@ class GameRepository {
         throw Exception('방이 가득 찼습니다.');
       }
 
-      // 이미 참가했는지 확인
-      if (room.players.containsKey(playerId)) {
-        throw Exception('이미 참가한 방입니다.');
-      }
-
       // 플레이어 추가
       final newPlayer = Player(
         id: playerId,
