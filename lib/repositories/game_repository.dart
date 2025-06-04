@@ -151,6 +151,49 @@ class GameRepository {
     await FirebaseService.getRoomRef(roomId).update({'status': 'finished'});
   }
 
+  // 플레이어 추방 (방장 전용)
+  Future<void> kickPlayer(String roomId, String playerId, String hostId) async {
+    try {
+      final roomRef = FirebaseService.getRoomRef(roomId);
+      final snapshot = await roomRef.once();
+
+      if (snapshot.snapshot.value == null) {
+        throw Exception('방을 찾을 수 없습니다.');
+      }
+
+      final roomData = Map<String, dynamic>.from(
+          snapshot.snapshot.value as Map);
+      final room = Room.fromJson(roomData);
+
+      // 방장 권한 확인
+      if (room.hostId != hostId) {
+        throw Exception('방장만 플레이어를 추방할 수 있습니다.');
+      }
+
+      // 자신을 추방하려는 경우 방지
+      if (playerId == hostId) {
+        throw Exception('자신을 추방할 수 없습니다.');
+      }
+
+      // 플레이어가 방에 있는지 확인
+      if (!room.players.containsKey(playerId)) {
+        throw Exception('해당 플레이어가 방에 없습니다.');
+      }
+
+      // 게임 시작 후에는 추방 불가
+      if (room.status != 'waiting') {
+        throw Exception('게임이 시작된 후에는 플레이어를 추방할 수 없습니다.');
+      }
+
+      // 플레이어 제거
+      await FirebaseService.getRoomPlayersRef(roomId)
+          .child(playerId)
+          .remove();
+    } catch (e) {
+      throw Exception('플레이어 추방 실패: ${e.toString()}');
+    }
+  }
+
   // 방 나가기
   Future<void> leaveRoom(String roomId, String playerId) async {
     try {
