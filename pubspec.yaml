@@ -36,7 +36,6 @@ dependencies:
   freezed_annotation: ^2.4.1
   json_annotation: ^4.9.0
   qr_flutter: ^4.1.0
-  qr_code_scanner: ^1.0.1
   uuid: ^4.2.1
   shared_preferences: ^2.2.2
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_providers.dart';
 import '../widgets/gradient_button.dart';
-import '../widgets/qr_scanner.dart';
 import 'waiting_room_screen.dart';
 
 class JoinRoomScreen extends ConsumerStatefulWidget {
@@ -65,23 +64,6 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
     }
   }
 
-  void _showQRScanner() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.8,
-        child: QRScannerWidget(
-          onCodeScanned: (code) {
-            Navigator.pop(context);
-            _codeController.text = code;
-            _joinRoom(code);
-          },
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,33 +124,6 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                               _joinRoom(value.trim());
                             }
                           },
-                        ),
-                        const SizedBox(height: 24),
-
-                        // QR 스캔 버튼
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: _showQRScanner,
-                            icon: const Icon(Icons.qr_code_scanner),
-                            label: const Text('QR 코드 스캔'),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.all(16),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        const Divider(),
-                        const SizedBox(height: 16),
-
-                        const Text(
-                          '또는',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
                         ),
                         const SizedBox(height: 16),
 

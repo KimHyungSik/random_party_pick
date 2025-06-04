@@ -80,7 +80,6 @@ class WaitingRoomScreen extends ConsumerWidget {
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) {
-            print("LOGEE ERROR $error");
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
