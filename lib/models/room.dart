@@ -64,6 +64,22 @@ class Room {
       }
     }
 
+    // Ensure redPlayers and greenPlayers are always valid lists
+    List<String> redPlayers = [];
+    List<String> greenPlayers = [];
+
+    try {
+      redPlayers = _parseStringList(json['redPlayers']);
+    } catch (e) {
+      print('Error parsing redPlayers: $e');
+    }
+
+    try {
+      greenPlayers = _parseStringList(json['greenPlayers']);
+    } catch (e) {
+      print('Error parsing greenPlayers: $e');
+    }
+
     return Room(
       id: json['id']?.toString() ?? '',
       hostId: json['hostId']?.toString() ?? '',
@@ -73,8 +89,8 @@ class Room {
       redCardCount: _parseInt(json['redCardCount']) ?? 2,
       status: json['status']?.toString() ?? 'waiting',
       players: players,
-      redPlayers: _parseStringList(json['redPlayers']),
-      greenPlayers: _parseStringList(json['greenPlayers']),
+      redPlayers: redPlayers,
+      greenPlayers: greenPlayers,
     );
   }
 

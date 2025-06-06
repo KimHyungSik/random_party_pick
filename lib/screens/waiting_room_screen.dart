@@ -246,6 +246,9 @@ class WaitingRoomScreen extends ConsumerWidget {
                                   : Colors.grey.shade200,
                             ),
                           ),
+                          constraints: const BoxConstraints(
+                            minHeight: 60,
+                          ),
                           child: Row(
                             children: [
                               CircleAvatar(
@@ -270,6 +273,8 @@ class WaitingRoomScreen extends ConsumerWidget {
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                     if (player.isHost)
                                       Text(
@@ -499,14 +504,37 @@ class WaitingRoomScreen extends ConsumerWidget {
 
   Future<void> _startGame(
       BuildContext context, WidgetRef ref, String roomId) async {
+    // Show loading indicator
+    final loadingDialog = showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Text('게임을 시작하는 중...'),
+          ],
+        ),
+      ),
+    );
+
     try {
       final repository = ref.read(gameRepositoryProvider);
       await repository.startGame(roomId);
     } catch (e) {
+      // Close loading dialog
+      if (context.mounted) Navigator.of(context).pop();
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('게임 시작 실패: $e')),
         );
+      }
+    } finally {
+      // Ensure dialog is closed
+      if (context.mounted && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
       }
     }
   }

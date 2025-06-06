@@ -42,10 +42,12 @@ class _CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
       );
 
       ref.read(currentRoomIdProvider.notifier).state = room.id;
+
       await RoomHistoryService.addRoomToHistory(
         room.inviteCode,
         '방 ${room.inviteCode}',
       );
+
       if (mounted) {
         Navigator.pushReplacement(
           context,

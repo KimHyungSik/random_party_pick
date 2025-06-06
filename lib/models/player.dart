@@ -25,12 +25,44 @@ class Player {
   }
 
   factory Player.fromJson(Map<String, dynamic> json) {
+    // Safe parsing with fallbacks
+    String id = '';
+    String name = 'Unknown';
+    DateTime joinedAt = DateTime.now();
+    bool isHost = false;
+    String? cardColor;
+
+    try {
+      id = json['id']?.toString() ?? '';
+      name = json['name']?.toString() ?? 'Unknown';
+
+      if (json['joinedAt'] != null) {
+        if (json['joinedAt'] is String) {
+          try {
+            joinedAt = DateTime.parse(json['joinedAt'] as String);
+          } catch (_) {
+            joinedAt = DateTime.now();
+          }
+        } else if (json['joinedAt'] is DateTime) {
+          joinedAt = json['joinedAt'] as DateTime;
+        }
+      }
+
+      isHost = json['isHost'] == true;
+
+      if (json['cardColor'] != null) {
+        cardColor = json['cardColor'].toString();
+      }
+    } catch (e) {
+      print('Error parsing player data: $e');
+    }
+
     return Player(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      joinedAt: DateTime.parse(json['joinedAt'] as String),
-      isHost: json['isHost'] as bool? ?? false,
-      cardColor: json['cardColor'] as String?,
+      id: id,
+      name: name,
+      joinedAt: joinedAt,
+      isHost: isHost,
+      cardColor: cardColor,
     );
   }
 

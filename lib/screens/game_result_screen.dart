@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/player.dart';
 import '../providers/game_providers.dart';
 import '../models/room.dart';
 import '../widgets/gradient_button.dart';
@@ -18,7 +19,7 @@ class GameResultScreen extends ConsumerWidget {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
-              (route) => false,
+          (route) => false,
         );
       });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -41,6 +42,7 @@ class GameResultScreen extends ConsumerWidget {
         child: SafeArea(
           child: roomAsync.when(
             data: (room) {
+              print("LOGEE room $room");
               if (room == null) {
                 return const Center(child: Text('방을 찾을 수 없습니다.'));
               }
@@ -50,8 +52,9 @@ class GameResultScreen extends ConsumerWidget {
                 return const Center(child: Text('플레이어 정보를 찾을 수 없습니다.'));
               }
 
-              final isRedCard = currentPlayer.cardColor == 'red';
-              return _buildResultScreen(context, ref, room, currentPlayer, isRedCard);
+              final isRedCard = currentPlayer.cardColor?.toLowerCase() == 'red';
+              return _buildResultScreen(
+                  context, ref, room, currentPlayer, isRedCard);
             },
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, stack) => Center(
@@ -70,7 +73,8 @@ class GameResultScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildResultScreen(BuildContext context, WidgetRef ref, Room room, dynamic currentPlayer, bool isRedCard) {
+  Widget _buildResultScreen(BuildContext context, WidgetRef ref, Room room,
+      Player currentPlayer, bool isRedCard) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -89,14 +93,19 @@ class GameResultScreen extends ConsumerWidget {
                   child: Opacity(
                     opacity: value,
                     child: Container(
-                      width: 200,
-                      height: 280,
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      constraints: BoxConstraints(
+                        maxWidth: 200,
+                        maxHeight: 280,
+                      ),
                       decoration: BoxDecoration(
                         color: isRedCard ? Colors.red : Colors.green,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: (isRedCard ? Colors.red : Colors.green).withOpacity(0.5),
+                            color: (isRedCard ? Colors.red : Colors.green)
+                                .withOpacity(0.5),
                             blurRadius: 20,
                             spreadRadius: 5,
                           ),
@@ -222,7 +231,8 @@ class GameResultScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildResultSection(String title, List<String> playerIds, Map<String, dynamic> allPlayers, Color color, IconData icon) {
+  Widget _buildResultSection(String title, List<String> playerIds,
+      Map<String, Player> allPlayers, Color color, IconData icon) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -259,6 +269,8 @@ class GameResultScreen extends ConsumerWidget {
                   color: color,
                   fontWeight: FontWeight.w500,
                 ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             );
           }).toList(),
@@ -272,7 +284,7 @@ class GameResultScreen extends ConsumerWidget {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
-          (route) => false,
+      (route) => false,
     );
   }
 }
