@@ -63,10 +63,12 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
   }
 
   Future<void> _joinRoom(String inviteCode) async {
-    final userId = ref.read(currentUserIdProvider);
+    final currentUserId = ref.watch(currentUserIdProvider);
     final userName = ref.read(currentUserNameProvider);
 
-    if (userId == null || userName == null) {
+    print("LOGEE joinRoom :userId $currentUserId");
+
+    if (currentUserId == null || userName == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('사용자 정보가 없습니다.')),
       );
@@ -81,7 +83,7 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
       final repository = ref.read(gameRepositoryProvider);
       final roomId = await repository.joinRoom(
         inviteCode: inviteCode,
-        playerId: userId,
+        playerId: currentUserId,
         playerName: userName,
       );
 
@@ -92,8 +94,6 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
       );
 
       ref.read(currentRoomIdProvider.notifier).state = roomId;
-      ref.read(currentUserIdProvider.notifier).state =
-          DateTime.now().millisecondsSinceEpoch.toString();
 
       if (mounted) {
         Navigator.pushReplacement(
@@ -176,15 +176,14 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                 const SizedBox(height: 24),
 
                 // 최근 참가한 방 목록
-                if (_validHistoryRooms.isNotEmpty || _isLoadingHistory)
-                  Expanded(
-                    child: RoomHistoryList(
-                      validHistoryRooms: _validHistoryRooms,
-                      isLoading: _isLoadingHistory,
-                      onJoinRoom: _joinRoom,
-                      isJoining: _isLoading,
-                    ),
+                Expanded(
+                  child: RoomHistoryList(
+                    validHistoryRooms: _validHistoryRooms,
+                    isLoading: _isLoadingHistory,
+                    onJoinRoom: _joinRoom,
+                    isJoining: _isLoading,
                   ),
+                ),
               ],
             ),
           ),

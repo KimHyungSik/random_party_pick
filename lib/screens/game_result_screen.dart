@@ -18,6 +18,8 @@ class GameResultScreen extends ConsumerWidget {
     final roomId = ref.watch(currentRoomIdProvider);
     final currentUserId = ref.watch(currentUserIdProvider);
 
+    print("LOGEE $roomId, $currentUserId");
+
     if (roomId == null || currentUserId == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushAndRemoveUntil(
@@ -46,6 +48,9 @@ class GameResultScreen extends ConsumerWidget {
         child: SafeArea(
           child: roomAsync.when(
             data: (room) {
+              print("LOGEE $room");
+              print("LOGEE ${room?.players.keys.join(", ")}");
+
               if (room == null) {
                 return const Center(child: Text('방을 찾을 수 없습니다.'));
               }
