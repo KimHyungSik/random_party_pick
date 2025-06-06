@@ -5,6 +5,7 @@ import '../providers/game_providers.dart';
 import '../models/room.dart';
 import '../widgets/gradient_button.dart';
 import 'home_screen.dart';
+import 'waiting_room_screen.dart';
 
 class GameResultScreen extends ConsumerWidget {
   const GameResultScreen({super.key});
@@ -208,16 +209,16 @@ class GameResultScreen extends ConsumerWidget {
           ),
           const Spacer(),
 
-          // 홈으로 돌아가기 버튼
+          // 대기실로 돌아가기 버튼
           SizedBox(
             width: double.infinity,
             child: GradientButton(
-              onPressed: () => _goHome(context, ref),
+              onPressed: () => _goWaitingRoom(context, ref, room.id),
               gradient: const LinearGradient(
                 colors: [Colors.purple, Colors.deepPurple],
               ),
               child: const Text(
-                '홈으로 돌아가기',
+                '대기실로 돌아가기',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -279,11 +280,14 @@ class GameResultScreen extends ConsumerWidget {
     );
   }
 
-  void _goHome(BuildContext context, WidgetRef ref) {
-    ref.read(currentRoomIdProvider.notifier).state = null;
+  void _goWaitingRoom(BuildContext context, WidgetRef ref, roomId) async {
+    final repository = ref.read(gameRepositoryProvider);
+    await repository.prepareGame(roomId);
+
+    // Navigate to waiting room instead of home
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      MaterialPageRoute(builder: (context) => const WaitingRoomScreen()),
       (route) => false,
     );
   }

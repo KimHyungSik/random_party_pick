@@ -73,7 +73,7 @@ class GameRepository {
       }
 
       // 인원 수 확인
-      if (room.players.length >= room.maxPlayers) {
+      if (room.players.length >= room.maxPlayers && !room.players.containsKey(playerId)) {
         throw Exception('방이 가득 찼습니다.');
       }
 
@@ -144,6 +144,11 @@ class GameRepository {
   // 게임 종료
   Future<void> finishGame(String roomId) async {
     await FirebaseService.getRoomRef(roomId).update({'status': 'finished'});
+  }
+
+  // 게임 준비
+  Future<void> prepareGame(String roomId) async {
+    await FirebaseService.getRoomRef(roomId).update({'status': 'waiting'});
   }
 
   // 플레이어 추방 (방장 전용)
@@ -293,7 +298,7 @@ class GameRepository {
     }
   }
 
-// 여러 초대코드들의 방 상태 확인
+  // 여러 초대코드들의 방 상태 확인
   Future<List<Room>> getValidRoomsByInviteCodes(List<String> inviteCodes) async {
     final validRooms = <Room>[];
 

@@ -73,8 +73,6 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
       return;
     }
 
-    if (!_formKey.currentState!.validate()) return;
-
     setState(() {
       _isLoading = true;
     });
@@ -335,7 +333,7 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                                         ),
                                         onTap: _isLoading
                                             ? null
-                                            : () => _joinRoom(room.id),
+                                            : () => _joinRoom(room.inviteCode),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(8),

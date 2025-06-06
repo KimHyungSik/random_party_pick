@@ -40,62 +40,64 @@ class WaitingRoomScreen extends ConsumerWidget {
               _showLeaveDialog(context, ref, roomId, currentUserId),
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
-            ],
+      body: SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF667eea),
+                Color(0xFF764ba2),
+              ],
+            ),
           ),
-        ),
-        child: roomAsync.when(
-          data: (room) {
-            if (room == null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  (route) => false,
-                );
-              });
-              return const Center(child: Text('방을 찾을 수 없습니다.'));
-            }
-
-            // 게임이 시작되면 결과 화면으로 이동
-            if (room.status == 'playing') {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const GameResultScreen(),
-                  ),
-                );
-              });
-            }
-
-            return _buildWaitingRoom(context, ref, room, currentUserId);
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text('오류가 발생했습니다: $error'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('돌아가기'),
-                  ),
-                ],
-              ),
-            );
-          },
+          child: roomAsync.when(
+            data: (room) {
+              if (room == null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    (route) => false,
+                  );
+                });
+                return const Center(child: Text('방을 찾을 수 없습니다.'));
+              }
+        
+              // 게임이 시작되면 결과 화면으로 이동
+              if (room.status == 'playing') {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const GameResultScreen(),
+                    ),
+                  );
+                });
+              }
+        
+              return _buildWaitingRoom(context, ref, room, currentUserId);
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, size: 64, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Text('오류가 발생했습니다: $error'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('돌아가기'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -158,19 +160,6 @@ class WaitingRoomScreen extends ConsumerWidget {
                             icon: const Icon(Icons.copy),
                           ),
                         ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () =>
-                              _showQRCode(context, room.inviteCode),
-                          icon: const Icon(Icons.qr_code),
-                          label: const Text('QR 코드 보기'),
-                        ),
                       ),
                     ],
                   ),
@@ -409,47 +398,6 @@ class WaitingRoomScreen extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-
-  void _showQRCode(BuildContext context, String inviteCode) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('QR 코드'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: QrImageView(
-                data: inviteCode,
-                version: QrVersions.auto,
-                size: 200.0,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              inviteCode,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('닫기'),
-          ),
-        ],
-      ),
     );
   }
 
