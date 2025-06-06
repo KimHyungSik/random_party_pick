@@ -18,7 +18,6 @@ class JoinRoomScreen extends ConsumerStatefulWidget {
 class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
   final _formKey = GlobalKey<FormState>();
   final _inviteCodeController = TextEditingController();
-  final _nameController = TextEditingController();
   bool _isLoading = false;
   List<Room> _validHistoryRooms = [];
   bool _isLoadingHistory = false;
@@ -32,7 +31,6 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
   @override
   void dispose() {
     _inviteCodeController.dispose();
-    _nameController.dispose();
     super.dispose();
   }
 
@@ -43,11 +41,13 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
 
     try {
       final history = await RoomHistoryService.getRoomHistory();
-      final inviteCodes = history.map((item) => item['inviteCode'] as String).toList();
+      final inviteCodes =
+          history.map((item) => item['inviteCode'] as String).toList();
 
       if (inviteCodes.isNotEmpty) {
         final repository = ref.read(gameRepositoryProvider);
-        final validRooms = await repository.getValidRoomsByInviteCodes(inviteCodes);
+        final validRooms =
+            await repository.getValidRoomsByInviteCodes(inviteCodes);
 
         setState(() {
           _validHistoryRooms = validRooms;
@@ -62,7 +62,17 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
     }
   }
 
-  Future<void> _joinRoom() async {
+  Future<void> _joinRoom(String inviteCode) async {
+    final userId = ref.read(currentUserIdProvider);
+    final userName = ref.read(currentUserNameProvider);
+
+    if (userId == null || userName == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('사용자 정보가 없습니다.')),
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
@@ -72,68 +82,15 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
     try {
       final repository = ref.read(gameRepositoryProvider);
       final roomId = await repository.joinRoom(
-        inviteCode: _inviteCodeController.text.trim().toUpperCase(),
-        playerId: DateTime.now().millisecondsSinceEpoch.toString(),
-        playerName: _nameController.text.trim(),
+        inviteCode: inviteCode,
+        playerId: userId,
+        playerName: userName,
       );
 
       // 성공시 방 이력에 추가
       await RoomHistoryService.addRoomToHistory(
-        _inviteCodeController.text.trim().toUpperCase(),
-        '방 ${_inviteCodeController.text.trim().toUpperCase()}',
-      );
-
-      ref.read(currentRoomIdProvider.notifier).state = roomId;
-      ref.read(currentUserIdProvider.notifier).state =
-          DateTime.now().millisecondsSinceEpoch.toString();
-
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const WaitingRoomScreen(),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _joinHistoryRoom(Room room) async {
-    if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('닉네임을 입력해주세요')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final repository = ref.read(gameRepositoryProvider);
-      final roomId = await repository.joinRoom(
-        inviteCode: room.inviteCode,
-        playerId: DateTime.now().millisecondsSinceEpoch.toString(),
-        playerName: _nameController.text.trim(),
-      );
-
-      // 방 이력 업데이트
-      await RoomHistoryService.addRoomToHistory(
-        room.inviteCode,
-        '방 ${room.inviteCode}',
+        inviteCode,
+        '방 $inviteCode',
       );
 
       ref.read(currentRoomIdProvider.notifier).state = roomId;
@@ -200,6 +157,15 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    '초대코드와 닉네임을 입력해주세요',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white70,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: 40),
 
                   // 입력 폼
@@ -236,37 +202,36 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                               }
                               return null;
                             },
-                            onChanged: (value){
-                              setState(() {
-                                _inviteCodeController.text = value.toUpperCase();
-                              });
-                            },
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
                           SizedBox(
                             width: double.infinity,
                             child: GradientButton(
-                              onPressed: _isLoading ? null : _joinRoom,
+                              onPressed: _isLoading
+                                  ? null
+                                  : () => _joinRoom(_inviteCodeController.text
+                                      .trim()
+                                      .toUpperCase()),
                               gradient: const LinearGradient(
                                 colors: [Colors.blue, Colors.purple],
                               ),
                               child: _isLoading
                                   ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
                                   : const Text(
-                                '방 참가',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
+                                      '방 참가',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
                           ),
                         ],
@@ -311,12 +276,14 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                                     const SizedBox(
                                       width: 16,
                                       height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
                                     ),
                                 ],
                               ),
                             ),
-                            if (_validHistoryRooms.isEmpty && !_isLoadingHistory)
+                            if (_validHistoryRooms.isEmpty &&
+                                !_isLoadingHistory)
                               const Padding(
                                 padding: EdgeInsets.all(32),
                                 child: Text(
@@ -368,9 +335,10 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                                         ),
                                         onTap: _isLoading
                                             ? null
-                                            : () => _joinHistoryRoom(room),
+                                            : () => _joinRoom(room.id),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         tileColor: Colors.grey.shade50,
                                       ),

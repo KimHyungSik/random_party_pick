@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:random_party_pick/screens/waiting_room_screen.dart';
 import '../providers/game_providers.dart';
+import '../services/room_history_service.dart';
 import '../widgets/gradient_button.dart';
 
 class CreateRoomScreen extends ConsumerStatefulWidget {
@@ -41,7 +42,10 @@ class _CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
       );
 
       ref.read(currentRoomIdProvider.notifier).state = room.id;
-
+      await RoomHistoryService.addRoomToHistory(
+        room.inviteCode,
+        '방 ${room.inviteCode}',
+      );
       if (mounted) {
         Navigator.pushReplacement(
           context,
