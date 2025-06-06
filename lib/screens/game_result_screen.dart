@@ -88,10 +88,7 @@ class GameResultScreen extends ConsumerWidget {
 
           // 카드 결과 애니메이션
           CardAnimation(isRedCard: isRedCard),
-          const SizedBox(height: 40),
 
-          // 전체 결과 보기
-          PlayerResultList(room: room),
           const Spacer(),
 
           // 대기실로 돌아가기 버튼
