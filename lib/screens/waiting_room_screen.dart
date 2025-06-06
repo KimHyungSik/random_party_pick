@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import '../providers/game_providers.dart';
 import '../models/room.dart';
-import '../widgets/gradient_button.dart';
+import '../providers/game_providers.dart';
+import '../widgets/room_info_card.dart';
+import '../widgets/room_stats_card.dart';
+import '../widgets/player_list_card.dart';
+import '../widgets/start_game_button.dart';
 import 'game_result_screen.dart';
 import 'home_screen.dart';
 
@@ -64,7 +65,7 @@ class WaitingRoomScreen extends ConsumerWidget {
                 });
                 return const Center(child: Text('방을 찾을 수 없습니다.'));
               }
-        
+          
               // 게임이 시작되면 결과 화면으로 이동
               if (room.status == 'playing') {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -76,7 +77,7 @@ class WaitingRoomScreen extends ConsumerWidget {
                   );
                 });
               }
-        
+          
               return _buildWaitingRoom(context, ref, room, currentUserId);
             },
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -113,297 +114,43 @@ class WaitingRoomScreen extends ConsumerWidget {
       child: Column(
         children: [
           // 방 정보 카드
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        '초대코드',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              room.inviteCode,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 2,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          IconButton(
-                            onPressed: () {
-                              Clipboard.setData(
-                                  ClipboardData(text: room.inviteCode));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('초대코드가 복사되었습니다')),
-                              );
-                            },
-                            icon: const Icon(Icons.copy),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
+          RoomInfoCard(inviteCode: room.inviteCode),
           const SizedBox(height: 16),
 
           // 게임 설정 정보
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildInfoItem('최대 인원', '${room.maxPlayers}명'),
-                  Container(width: 1, height: 40, color: Colors.grey.shade300),
-                  _buildInfoItem('빨간 카드', '${room.redCardCount}개'),
-                  Container(width: 1, height: 40, color: Colors.grey.shade300),
-                  _buildInfoItem('현재 인원', '$playerCount명'),
-                ],
-              ),
-            ),
+          RoomStatsCard(
+            maxPlayers: room.maxPlayers,
+            redCardCount: room.redCardCount,
+            playerCount: playerCount,
           ),
           const SizedBox(height: 16),
 
           // 플레이어 목록
           Expanded(
-            child: Card(
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.people, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        Text(
-                          '참가자 ($playerCount/${room.maxPlayers})',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: room.players.length,
-                      itemBuilder: (context, index) {
-                        final player = room.players.values.toList()[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: player.isHost
-                                ? Colors.orange.shade50
-                                : Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: player.isHost
-                                  ? Colors.orange.shade200
-                                  : Colors.grey.shade200,
-                            ),
-                          ),
-                          constraints: const BoxConstraints(
-                            minHeight: 60,
-                          ),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor:
-                                    player.isHost ? Colors.orange : Colors.blue,
-                                child: Text(
-                                  player.name[0].toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      player.name,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                    if (player.isHost)
-                                      Text(
-                                        '방장',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.orange.shade700,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              if (player.id == currentUserId)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.shade100,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Text(
-                                    '나',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              // 방장만 추방 버튼 표시 (자신은 제외)
-                              if (isHost && player.id != currentUserId)
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8),
-                                  child: IconButton(
-                                    onPressed: () => _showKickDialog(
-                                      context,
-                                      ref,
-                                      room.id,
-                                      player.id,
-                                      player.name,
-                                      currentUserId,
-                                    ),
-                                    icon: const Icon(
-                                      Icons.person_remove,
-                                      color: Colors.red,
-                                      size: 20,
-                                    ),
-                                    tooltip: '${player.name} 추방',
-                                    style: IconButton.styleFrom(
-                                      backgroundColor: Colors.red.shade50,
-                                      foregroundColor: Colors.red,
-                                      minimumSize: const Size(32, 32),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
+            child: PlayerListCard(
+              players: room.players,
+              maxPlayers: room.maxPlayers,
+              currentUserId: currentUserId,
+              isHost: isHost,
+              onKickPlayer: _showKickDialog,
             ),
           ),
           const SizedBox(height: 16),
 
-          // 게임 시작 버튼 (방장만)
-          if (isHost)
-            SizedBox(
-              width: double.infinity,
-              child: GradientButton(
-                onPressed: playerCount >= 2
-                    ? () => _startGame(context, ref, room.id)
-                    : null,
-                gradient: const LinearGradient(
-                  colors: [Colors.red, Colors.pink],
-                ),
-                child: Text(
-                  playerCount >= 2 ? '게임 시작' : '최소 2명 이상 필요',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            )
-          else
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: const Text(
-                '방장이 게임을 시작하길 기다리는 중...',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-              ),
-            ),
+          // 게임 시작 버튼
+          StartGameButton(
+            isHost: isHost,
+            playerCount: playerCount,
+            onStartGame: _startGame,
+            roomId: room.id,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoItem(String label, String value) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
-        ),
-      ],
-    );
-  }
-
   Future<void> _showKickDialog(
     BuildContext context,
-    WidgetRef ref,
     String roomId,
     String playerId,
     String playerName,
@@ -432,7 +179,7 @@ class WaitingRoomScreen extends ConsumerWidget {
 
     if (confirmed == true && context.mounted) {
       try {
-        final repository = ref.read(gameRepositoryProvider);
+        final repository = ProviderScope.containerOf(context).read(gameRepositoryProvider);
         await repository.kickPlayer(roomId, playerId, hostId);
         
         if (context.mounted) {
@@ -451,7 +198,7 @@ class WaitingRoomScreen extends ConsumerWidget {
   }
 
   Future<void> _startGame(
-      BuildContext context, WidgetRef ref, String roomId) async {
+      BuildContext context, String roomId) async {
     // Show loading indicator
     final loadingDialog = showDialog(
       context: context,
@@ -468,7 +215,7 @@ class WaitingRoomScreen extends ConsumerWidget {
     );
 
     try {
-      final repository = ref.read(gameRepositoryProvider);
+      final repository = ProviderScope.containerOf(context).read(gameRepositoryProvider);
       await repository.startGame(roomId);
     } catch (e) {
       // Close loading dialog

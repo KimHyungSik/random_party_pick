@@ -1,11 +1,11 @@
 // lib/screens/join_room_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/room.dart';
 import '../providers/game_providers.dart';
 import '../services/room_history_service.dart';
-import '../widgets/gradient_button.dart';
+import '../widgets/join_room_form.dart';
+import '../widgets/room_history_list.dart';
 import 'waiting_room_screen.dart';
 
 class JoinRoomScreen extends ConsumerStatefulWidget {
@@ -140,216 +140,51 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // 제목
-                  const Text(
-                    '방에 참가하기',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 제목
+                const Text(
+                  '방에 참가하기',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    '초대코드와 닉네임을 입력해주세요',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white70,
-                    ),
-                    textAlign: TextAlign.center,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  '초대코드와 닉네임을 입력해주세요',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white70,
                   ),
-                  const SizedBox(height: 40),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 40),
 
-                  // 입력 폼
-                  Card(
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: _inviteCodeController,
-                            decoration: const InputDecoration(
-                              labelText: '초대코드',
-                              hintText: '6자리 초대코드를 입력하세요',
-                              prefixIcon: Icon(Icons.vpn_key),
-                              border: OutlineInputBorder(),
-                            ),
-                            textCapitalization: TextCapitalization.characters,
-                            inputFormatters: [
-                              LengthLimitingTextInputFormatter(6),
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'[A-Za-z0-9]'),
-                              ),
-                            ],
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return '초대코드를 입력해주세요';
-                              }
-                              if (value.trim().length != 6) {
-                                return '초대코드는 6자리입니다';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: GradientButton(
-                              onPressed: _isLoading
-                                  ? null
-                                  : () => _joinRoom(_inviteCodeController.text
-                                      .trim()
-                                      .toUpperCase()),
-                              gradient: const LinearGradient(
-                                colors: [Colors.blue, Colors.purple],
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text(
-                                      '방 참가',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ],
-                      ),
+                // 입력 폼
+                JoinRoomForm(
+                  inviteCodeController: _inviteCodeController,
+                  onJoinRoom: _joinRoom,
+                  isLoading: _isLoading,
+                  formKey: _formKey,
+                ),
+
+                const SizedBox(height: 24),
+
+                // 최근 참가한 방 목록
+                if (_validHistoryRooms.isNotEmpty || _isLoadingHistory)
+                  Expanded(
+                    child: RoomHistoryList(
+                      validHistoryRooms: _validHistoryRooms,
+                      isLoading: _isLoadingHistory,
+                      onJoinRoom: _joinRoom,
+                      isJoining: _isLoading,
                     ),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // 최근 참가한 방 목록
-                  if (_validHistoryRooms.isNotEmpty || _isLoadingHistory)
-                    Expanded(
-                      child: Card(
-                        elevation: 8,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(16),
-                                  topRight: Radius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.history, color: Colors.blue),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    '최근 참가한 방',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  if (_isLoadingHistory)
-                                    const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            if (_validHistoryRooms.isEmpty &&
-                                !_isLoadingHistory)
-                              const Padding(
-                                padding: EdgeInsets.all(32),
-                                child: Text(
-                                  '참가 가능한 방이 없습니다',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              )
-                            else
-                              Expanded(
-                                child: ListView.builder(
-                                  padding: const EdgeInsets.all(16),
-                                  itemCount: _validHistoryRooms.length,
-                                  itemBuilder: (context, index) {
-                                    final room = _validHistoryRooms[index];
-                                    return Container(
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      child: ListTile(
-                                        leading: CircleAvatar(
-                                          backgroundColor: Colors.blue.shade100,
-                                          child: Text(
-                                            room.inviteCode[0],
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue,
-                                            ),
-                                          ),
-                                        ),
-                                        title: Text(
-                                          room.inviteCode,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 1,
-                                          ),
-                                        ),
-                                        subtitle: Text(
-                                          '${room.players.length}/${room.maxPlayers}명 참가 중',
-                                          style: TextStyle(
-                                            color: Colors.grey.shade600,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                        trailing: Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 16,
-                                          color: Colors.grey.shade400,
-                                        ),
-                                        onTap: _isLoading
-                                            ? null
-                                            : () => _joinRoom(room.inviteCode),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        tileColor: Colors.grey.shade50,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+              ],
             ),
           ),
         ),
