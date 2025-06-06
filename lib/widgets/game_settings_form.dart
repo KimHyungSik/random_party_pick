@@ -4,19 +4,15 @@ import 'player_count_selector.dart';
 import 'card_count_selector.dart';
 
 class GameSettingsForm extends StatelessWidget {
-  final int maxPlayers;
   final int redCardCount;
   final bool isLoading;
-  final Function(int) onMaxPlayersChanged;
   final Function(int) onRedCardCountChanged;
   final VoidCallback onCreateRoom;
 
   const GameSettingsForm({
     super.key,
-    required this.maxPlayers,
     required this.redCardCount,
     required this.isLoading,
-    required this.onMaxPlayersChanged,
     required this.onRedCardCountChanged,
     required this.onCreateRoom,
   });
@@ -38,19 +34,9 @@ class GameSettingsForm extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // 최대 인원수 설정
-            PlayerCountSelector(
-              value: maxPlayers,
-              onChanged: onMaxPlayersChanged,
-              label: '최대 인원수',
-              unit: '명',
-            ),
-            const SizedBox(height: 24),
-
             // 빨간 카드 개수 설정
             CardCountSelector(
               redCardCount: redCardCount,
-              maxPlayers: maxPlayers,
               onChanged: onRedCardCountChanged,
             ),
             const Spacer(),

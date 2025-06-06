@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/room.dart';
 import '../providers/game_providers.dart';
 import '../widgets/room_info_card.dart';
-import '../widgets/room_stats_card.dart';
 import '../widgets/player_list_card.dart';
 import '../widgets/start_game_button.dart';
 import 'game_result_screen.dart';
@@ -22,7 +21,7 @@ class WaitingRoomScreen extends ConsumerWidget {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
-          (route) => false,
+              (route) => false,
         );
       });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -60,12 +59,12 @@ class WaitingRoomScreen extends ConsumerWidget {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => const HomeScreen()),
-                    (route) => false,
+                        (route) => false,
                   );
                 });
                 return const Center(child: Text('방을 찾을 수 없습니다.'));
               }
-          
+
               // 게임이 시작되면 결과 화면으로 이동
               if (room.status == 'playing') {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -77,7 +76,7 @@ class WaitingRoomScreen extends ConsumerWidget {
                   );
                 });
               }
-          
+
               return _buildWaitingRoom(context, ref, room, currentUserId);
             },
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -117,19 +116,16 @@ class WaitingRoomScreen extends ConsumerWidget {
           RoomInfoCard(inviteCode: room.inviteCode),
           const SizedBox(height: 16),
 
-          // 게임 설정 정보
-          RoomStatsCard(
-            maxPlayers: room.maxPlayers,
-            redCardCount: room.redCardCount,
-            playerCount: playerCount,
-          ),
-          const SizedBox(height: 16),
+          // 게임 설정 (방장만)
+          if (isHost) ...[
+            _buildGameSettingsCard(context, ref, room, playerCount),
+            const SizedBox(height: 16),
+          ],
 
           // 플레이어 목록
           Expanded(
             child: PlayerListCard(
               players: room.players,
-              maxPlayers: room.maxPlayers,
               currentUserId: currentUserId,
               isHost: isHost,
               onKickPlayer: _showKickDialog,
@@ -149,13 +145,101 @@ class WaitingRoomScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildGameSettingsCard(
+      BuildContext context, WidgetRef ref, Room room, int playerCount) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.settings, color: Colors.blue),
+                SizedBox(width: 8),
+                Text(
+                  '게임 설정',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text(
+                  '빨간 카드 개수: ',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: room.redCardCount > 1
+                      ? () => _updateRedCardCount(context, ref, room.id, room.redCardCount - 1)
+                      : null,
+                  icon: const Icon(Icons.remove_circle_outline),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    '${room.redCardCount}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: room.redCardCount < playerCount
+                      ? () => _updateRedCardCount(context, ref, room.id, room.redCardCount + 1)
+                      : null,
+                  icon: const Icon(Icons.add_circle_outline),
+                ),
+              ],
+            ),
+            if (room.redCardCount >= playerCount)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text(
+                  '빨간 카드는 현재 인원보다 적어야 합니다.',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _updateRedCardCount(
+      BuildContext context, WidgetRef ref, String roomId, int newCount) async {
+    try {
+      final repository = ref.read(gameRepositoryProvider);
+      await repository.updateRedCardCount(roomId, newCount);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('설정 변경 실패: $e')),
+        );
+      }
+    }
+  }
+
   Future<void> _showKickDialog(
-    BuildContext context,
-    String roomId,
-    String playerId,
-    String playerName,
-    String hostId,
-  ) async {
+      BuildContext context,
+      String roomId,
+      String playerId,
+      String playerName,
+      String hostId,
+      ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -181,7 +265,7 @@ class WaitingRoomScreen extends ConsumerWidget {
       try {
         final repository = ProviderScope.containerOf(context).read(gameRepositoryProvider);
         await repository.kickPlayer(roomId, playerId, hostId);
-        
+
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('$playerName님을 추방했습니다.')),
@@ -259,7 +343,7 @@ class WaitingRoomScreen extends ConsumerWidget {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen()),
-            (route) => false,
+                (route) => false,
           );
         }
       } catch (e) {

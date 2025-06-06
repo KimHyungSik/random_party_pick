@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
 class RoomStatsCard extends StatelessWidget {
-  final int maxPlayers;
   final int redCardCount;
   final int playerCount;
 
   const RoomStatsCard({
     super.key,
-    required this.maxPlayers,
     required this.redCardCount,
     required this.playerCount,
   });
@@ -20,7 +18,6 @@ class RoomStatsCard extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildInfoItem('최대 인원', '$maxPlayers명'),
             Container(width: 1, height: 40, color: Colors.grey.shade300),
             _buildInfoItem('빨간 카드', '$redCardCount개'),
             Container(width: 1, height: 40, color: Colors.grey.shade300),

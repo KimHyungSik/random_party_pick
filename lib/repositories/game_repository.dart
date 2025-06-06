@@ -15,8 +15,7 @@ class GameRepository {
   Future<Room> createRoom({
     required String hostId,
     required String hostName,
-    int maxPlayers = 8,
-    int redCardCount = 2,
+    int redCardCount = 1,
   }) async {
     final roomId = _generateRoomId();
     final inviteCode = _generateInviteCode();
@@ -34,7 +33,6 @@ class GameRepository {
       hostId: hostId,
       inviteCode: inviteCode,
       createdAt: now,
-      maxPlayers: maxPlayers,
       redCardCount: redCardCount,
       players: {hostId: host},
     );
@@ -70,11 +68,6 @@ class GameRepository {
       // 방 상태 확인
       if (room.status != 'waiting') {
         throw Exception('게임이 이미 시작되었거나 종료되었습니다.');
-      }
-
-      // 인원 수 확인
-      if (room.players.length >= room.maxPlayers && !room.players.containsKey(playerId)) {
-        throw Exception('방이 가득 찼습니다.');
       }
 
       // 플레이어 추가
@@ -310,5 +303,42 @@ class GameRepository {
     }
 
     return validRooms;
+  }
+
+  // 빨간 카드 개수 업데이트 메소드 추가
+  Future<void> updateRedCardCount(String roomId, int newRedCardCount) async {
+    try {
+      final roomRef = FirebaseService.getRoomRef(roomId);
+      final snapshot = await roomRef.once();
+
+      if (snapshot.snapshot.value == null) {
+        throw Exception('방을 찾을 수 없습니다.');
+      }
+
+      final roomData = Map<String, dynamic>.from(
+          snapshot.snapshot.value as Map);
+      final room = Room.fromJson(roomData);
+
+      // 게임이 시작된 후에는 설정 변경 불가
+      if (room.status != 'waiting') {
+        throw Exception('게임이 시작된 후에는 설정을 변경할 수 없습니다.');
+      }
+
+      // 빨간 카드 개수가 현재 플레이어 수보다 많으면 안됨
+      if (newRedCardCount >= room.players.length) {
+        throw Exception('빨간 카드 개수는 현재 플레이어 수보다 적어야 합니다.');
+      }
+
+      // 최소 1개는 있어야 함
+      if (newRedCardCount < 1) {
+        throw Exception('빨간 카드는 최소 1장이어야 합니다.');
+      }
+
+      await roomRef.update({
+        'redCardCount': newRedCardCount,
+      });
+    } catch (e) {
+      throw Exception('빨간 카드 개수 변경 실패: ${e.toString()}');
+    }
   }
 }

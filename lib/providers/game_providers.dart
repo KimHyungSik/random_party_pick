@@ -37,7 +37,6 @@ final createRoomProvider = FutureProvider.family<Room, CreateRoomParams>((ref, p
   return repository.createRoom(
     hostId: params.hostId,
     hostName: params.hostName,
-    maxPlayers: params.maxPlayers,
     redCardCount: params.redCardCount,
   );
 });
@@ -47,13 +46,11 @@ final createRoomProvider = FutureProvider.family<Room, CreateRoomParams>((ref, p
 class CreateRoomParams {
   final String hostId;
   final String hostName;
-  final int maxPlayers;
   final int redCardCount;
 
   CreateRoomParams({
     required this.hostId,
     required this.hostName,
-    this.maxPlayers = 8,
     this.redCardCount = 2,
   });
 }

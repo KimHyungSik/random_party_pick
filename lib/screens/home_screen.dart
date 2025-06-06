@@ -4,8 +4,8 @@ import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/game_providers.dart';
 import '../widgets/gradient_button.dart';
-import 'create_room_screen.dart';
 import 'join_room_screen.dart';
+import 'waiting_room_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +17,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? userName;
   final TextEditingController _nameController = TextEditingController();
+  bool _isCreatingRoom = false;
 
   @override
   void initState() {
@@ -50,6 +51,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     });
   }
 
+  Future<void> _createRoom() async {
+    setState(() => _isCreatingRoom = true);
+
+    try {
+      final repository = ref.read(gameRepositoryProvider);
+      final userId = ref.read(currentUserIdProvider);
+      final userName = ref.read(currentUserNameProvider);
+
+      if (userId == null || userName == null) {
+        throw Exception('사용자 정보가 없습니다.');
+      }
+
+      final room = await repository.createRoom(
+        hostId: userId,
+        hostName: userName,
+        redCardCount: 2, // 기본값
+      );
+
+      ref.read(currentRoomIdProvider.notifier).state = room.id;
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const WaitingRoomScreen(),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('방 생성 실패: $e')),
+        );
+      }
+    } finally {
+      setState(() => _isCreatingRoom = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,9 +111,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const SizedBox(
-                  height: 60,
-                ),
+                const SizedBox(height: 60),
                 // 앱 로고/제목
                 const Icon(
                   Icons.casino,
@@ -177,18 +215,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: GradientButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CreateRoomScreen(),
-                          ),
-                        );
-                      },
+                      onPressed: _isCreatingRoom ? null : _createRoom,
                       gradient: const LinearGradient(
                         colors: [Colors.orange, Colors.deepOrange],
                       ),
-                      child: const Row(
+                      child: _isCreatingRoom
+                          ? const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            '방 생성 중...',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      )
+                          : const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.add, color: Colors.white),

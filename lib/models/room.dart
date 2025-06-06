@@ -5,7 +5,6 @@ class Room {
   final String hostId;
   final String inviteCode;
   final DateTime createdAt;
-  final int maxPlayers;
   final int redCardCount;
   final String status; // 'waiting', 'playing', 'finished'
   final Map<String, Player> players;
@@ -17,7 +16,6 @@ class Room {
     required this.hostId,
     required this.inviteCode,
     required this.createdAt,
-    this.maxPlayers = 8,
     this.redCardCount = 2,
     this.status = 'waiting',
     this.players = const {},
@@ -32,7 +30,6 @@ class Room {
       'hostId': hostId,
       'inviteCode': inviteCode,
       'createdAt': createdAt.toIso8601String(),
-      'maxPlayers': maxPlayers,
       'redCardCount': redCardCount,
       'status': status,
       'players': players.map((key, player) => MapEntry(key, player.toJson())),
@@ -85,7 +82,6 @@ class Room {
       hostId: json['hostId']?.toString() ?? '',
       inviteCode: json['inviteCode']?.toString() ?? '',
       createdAt: _parseDateTime(json['createdAt']),
-      maxPlayers: _parseInt(json['maxPlayers']) ?? 8,
       redCardCount: _parseInt(json['redCardCount']) ?? 2,
       status: json['status']?.toString() ?? 'waiting',
       players: players,
@@ -151,7 +147,6 @@ class Room {
     String? hostId,
     String? inviteCode,
     DateTime? createdAt,
-    int? maxPlayers,
     int? redCardCount,
     String? status,
     Map<String, Player>? players,
@@ -163,7 +158,6 @@ class Room {
       hostId: hostId ?? this.hostId,
       inviteCode: inviteCode ?? this.inviteCode,
       createdAt: createdAt ?? this.createdAt,
-      maxPlayers: maxPlayers ?? this.maxPlayers,
       redCardCount: redCardCount ?? this.redCardCount,
       status: status ?? this.status,
       players: players ?? this.players,
@@ -180,7 +174,6 @@ class Room {
         other.hostId == hostId &&
         other.inviteCode == inviteCode &&
         other.createdAt == createdAt &&
-        other.maxPlayers == maxPlayers &&
         other.redCardCount == redCardCount &&
         other.status == status &&
         _mapEquals(other.players, players) &&
@@ -195,7 +188,6 @@ class Room {
       hostId,
       inviteCode,
       createdAt,
-      maxPlayers,
       redCardCount,
       status,
       players,

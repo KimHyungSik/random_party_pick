@@ -5,7 +5,6 @@ import '../providers/game_providers.dart';
 
 class PlayerListCard extends StatelessWidget {
   final Map<String, Player> players;
-  final int maxPlayers;
   final String currentUserId;
   final bool isHost;
   final Function(BuildContext, String, String, String, String) onKickPlayer;
@@ -13,7 +12,6 @@ class PlayerListCard extends StatelessWidget {
   const PlayerListCard({
     super.key,
     required this.players,
-    required this.maxPlayers,
     required this.currentUserId,
     required this.isHost,
     required this.onKickPlayer,
@@ -40,7 +38,7 @@ class PlayerListCard extends StatelessWidget {
                 const Icon(Icons.people, color: Colors.blue),
                 const SizedBox(width: 8),
                 Text(
-                  '참가자 ($playerCount/$maxPlayers)',
+                  '참가자 ($playerCount) 명',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

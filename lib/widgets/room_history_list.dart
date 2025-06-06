@@ -111,7 +111,7 @@ class RoomHistoryList extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          '${room.players.length}/${room.maxPlayers}명 참가 중',
+          '${room.players.length} 명 참가 중',
           style: TextStyle(
             color: Colors.grey.shade600,
             fontSize: 12,
