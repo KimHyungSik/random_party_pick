@@ -121,6 +121,7 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('방 참가'),
         backgroundColor: Colors.transparent,

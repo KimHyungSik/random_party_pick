@@ -61,61 +61,8 @@ class RoomInfoCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showQRCode(context, inviteCode),
-                    icon: const Icon(Icons.qr_code),
-                    label: const Text('QR 코드 보기'),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showQRCode(BuildContext context, String inviteCode) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('QR 코드'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: QrImageView(
-                data: inviteCode,
-                version: QrVersions.auto,
-                size: 200.0,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              inviteCode,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('닫기'),
-          ),
-        ],
       ),
     );
   }

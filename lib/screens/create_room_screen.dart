@@ -90,37 +90,40 @@ class _CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('방 만들기'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
-            ],
+      body: SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF667eea),
+                Color(0xFF764ba2),
+              ],
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: GameSettingsForm(
-                  maxPlayers: maxPlayers,
-                  redCardCount: redCardCount,
-                  isLoading: isLoading,
-                  onMaxPlayersChanged: _updateMaxPlayers,
-                  onRedCardCountChanged: _updateRedCardCount,
-                  onCreateRoom: _createRoom,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                Expanded(
+                  child: GameSettingsForm(
+                    maxPlayers: maxPlayers,
+                    redCardCount: redCardCount,
+                    isLoading: isLoading,
+                    onMaxPlayersChanged: _updateMaxPlayers,
+                    onRedCardCountChanged: _updateRedCardCount,
+                    onCreateRoom: _createRoom,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

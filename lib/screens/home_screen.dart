@@ -53,6 +53,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -68,8 +69,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                const SizedBox(
+                  height: 60,
+                ),
                 // 앱 로고/제목
                 const Icon(
                   Icons.casino,
