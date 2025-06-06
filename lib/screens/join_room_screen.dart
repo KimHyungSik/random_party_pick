@@ -87,12 +87,6 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
         playerName: userName,
       );
 
-      // 성공시 방 이력에 추가
-      await RoomHistoryService.addRoomToHistory(
-        inviteCode,
-        '방 $inviteCode',
-      );
-
       ref.read(currentRoomIdProvider.notifier).state = roomId;
 
       if (mounted) {

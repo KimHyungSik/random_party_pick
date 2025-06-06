@@ -66,7 +66,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final room = await repository.createRoom(
         hostId: userId,
         hostName: userName,
-        redCardCount: 2, // 기본값
+        redCardCount: 1, // 기본값
       );
 
       ref.read(currentRoomIdProvider.notifier).state = room.id;

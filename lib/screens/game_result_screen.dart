@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/player.dart';
-import '../providers/game_providers.dart';
+import 'package:random_party_pick/screens/waiting_room_screen.dart';
 import '../models/room.dart';
+import '../providers/game_providers.dart';
 import '../widgets/gradient_button.dart';
-import '../widgets/game_result_card.dart';
 import '../widgets/card_animation.dart';
-import '../widgets/player_result_list.dart';
 import 'home_screen.dart';
-import 'waiting_room_screen.dart';
 
-class GameResultScreen extends ConsumerWidget {
+class GameResultScreen extends ConsumerStatefulWidget {
   const GameResultScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GameResultScreen> createState() => _GameResultScreenState();
+}
+
+class _GameResultScreenState extends ConsumerState<GameResultScreen> {
+  bool _showOtherResults = false;
+
+  @override
+  Widget build(BuildContext context) {
     final roomId = ref.watch(currentRoomIdProvider);
     final currentUserId = ref.watch(currentUserIdProvider);
-
-    print("LOGEE $roomId, $currentUserId");
 
     if (roomId == null || currentUserId == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -35,6 +37,8 @@ class GameResultScreen extends ConsumerWidget {
 
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -48,18 +52,27 @@ class GameResultScreen extends ConsumerWidget {
         child: SafeArea(
           child: roomAsync.when(
             data: (room) {
-
               if (room == null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    (route) => false,
+                  );
+                });
                 return const Center(child: Text('방을 찾을 수 없습니다.'));
               }
 
-              final currentPlayer = room.players[currentUserId];
-              if (currentPlayer == null) {
-                return const Center(child: Text('플레이어 정보를 찾을 수 없습니다.'));
+              // 게임이 아직 시작되지 않았으면 대기실로 돌아가기
+              if (room.status != 'playing') {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pop(context);
+                });
+                return const Center(child: CircularProgressIndicator());
               }
 
-              final isRedCard = currentPlayer.cardColor?.toLowerCase() == 'red';
-              return _buildResultScreen(context, ref, room, isRedCard, roomId);
+              return _buildGameResult(
+                  context, ref, room, currentUserId, roomId);
             },
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, stack) => Center(
@@ -69,6 +82,11 @@ class GameResultScreen extends ConsumerWidget {
                   const Icon(Icons.error, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
                   Text('오류가 발생했습니다: $error'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('돌아가기'),
+                  ),
                 ],
               ),
             ),
@@ -78,43 +96,76 @@ class GameResultScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildResultScreen(BuildContext context, WidgetRef ref, Room room, 
-      bool isRedCard, String roomId) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        children: [
-          const Spacer(),
+  Widget _buildGameResult(BuildContext context, WidgetRef ref, Room room,
+      String currentUserId, String roomId) {
+    final currentPlayer = room.players[currentUserId];
+    if (currentPlayer == null) {
+      return const Center(child: Text('플레이어 정보를 찾을 수 없습니다.'));
+    }
 
-          // 카드 결과 애니메이션
-          CardAnimation(isRedCard: isRedCard),
+    final hasRedCard = currentPlayer.cardColor == "red";
+    final playerName = currentPlayer.name;
 
-          const Spacer(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
+            ),
+            child: IntrinsicHeight(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Spacer(),
 
-          // 대기실로 돌아가기 버튼
-          SizedBox(
-            width: double.infinity,
-            child: GradientButton(
-              onPressed: () => _goWaitingRoom(context, ref, roomId),
-              gradient: const LinearGradient(
-                colors: [Colors.purple, Colors.deepPurple],
-              ),
-              child: const Text(
-                '대기실로 돌아가기',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                    // 카드 애니메이션
+                    CardAnimation(
+                      hasRedCard: hasRedCard,
+                      playerName: playerName,
+                      onFlipComplete: () {
+                        setState(() {
+                          _showOtherResults = true;
+                        });
+                      },
+                    ),
+
+                    const Spacer(),
+
+                    // 다른 플레이어 결과 (카드 뒤집기 완료 후)
+                    if (_showOtherResults) ...[
+                      SizedBox(
+                        width: double.infinity,
+                        child: GradientButton(
+                          onPressed: () => _goWaitingRoom(context, ref, roomId),
+                          gradient: const LinearGradient(
+                            colors: [Colors.purple, Colors.deepPurple],
+                          ),
+                          child: const Text(
+                            '대기실로 돌아가기',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  void _goWaitingRoom(BuildContext context, WidgetRef ref, String roomId) async {
+  void _goWaitingRoom(
+      BuildContext context, WidgetRef ref, String roomId) async {
     final repository = ref.read(gameRepositoryProvider);
     await repository.prepareGame(roomId);
 
