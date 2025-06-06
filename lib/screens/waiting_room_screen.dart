@@ -226,11 +226,6 @@ class WaitingRoomScreen extends ConsumerWidget {
           SnackBar(content: Text('게임 시작 실패: $e')),
         );
       }
-    } finally {
-      // Ensure dialog is closed
-      if (context.mounted && Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
     }
   }
 

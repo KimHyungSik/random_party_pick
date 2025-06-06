@@ -47,15 +47,6 @@ class CardAnimation extends StatelessWidget {
                       size: 80,
                       color: Colors.white,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      isRedCard ? '빨간 카드' : '녹색 카드',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
                   ],
                 ),
               ),

@@ -48,8 +48,6 @@ class GameResultScreen extends ConsumerWidget {
         child: SafeArea(
           child: roomAsync.when(
             data: (room) {
-              print("LOGEE $room");
-              print("LOGEE ${room?.players.keys.join(", ")}");
 
               if (room == null) {
                 return const Center(child: Text('방을 찾을 수 없습니다.'));
@@ -91,16 +89,6 @@ class GameResultScreen extends ConsumerWidget {
           // 카드 결과 애니메이션
           CardAnimation(isRedCard: isRedCard),
           const SizedBox(height: 40),
-
-          // 결과 메시지
-          GameResultCard(
-            isRedCard: isRedCard,
-            title: isRedCard ? '😭 아쉽네요!' : '🎉 축하합니다!',
-            message: isRedCard
-                ? '빨간 카드를 뽑으셨습니다.\n다음 기회에 도전해보세요!'
-                : '녹색 카드를 뽑으셨습니다.\n운이 좋으시네요!',
-          ),
-          const SizedBox(height: 32),
 
           // 전체 결과 보기
           PlayerResultList(room: room),
