@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/room.dart';
 import '../providers/game_providers.dart';
-import '../services/room_history_service.dart';
 import '../widgets/join_room_form.dart';
-import '../widgets/room_history_list.dart';
 import 'waiting_room_screen.dart';
 
 class JoinRoomScreen extends ConsumerStatefulWidget {
@@ -19,14 +17,6 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
   final _formKey = GlobalKey<FormState>();
   final _inviteCodeController = TextEditingController();
   bool _isLoading = false;
-  List<Room> _validHistoryRooms = [];
-  bool _isLoadingHistory = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadRoomHistory();
-  }
 
   @override
   void dispose() {
@@ -34,39 +24,9 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
     super.dispose();
   }
 
-  Future<void> _loadRoomHistory() async {
-    setState(() {
-      _isLoadingHistory = true;
-    });
-
-    try {
-      final history = await RoomHistoryService.getRoomHistory();
-      final inviteCodes =
-          history.map((item) => item['inviteCode'] as String).toList();
-
-      if (inviteCodes.isNotEmpty) {
-        final repository = ref.read(gameRepositoryProvider);
-        final validRooms =
-            await repository.getValidRoomsByInviteCodes(inviteCodes);
-
-        setState(() {
-          _validHistoryRooms = validRooms;
-        });
-      }
-    } catch (e) {
-      // 에러 무시 (히스토리 로딩 실패는 치명적이지 않음)
-    } finally {
-      setState(() {
-        _isLoadingHistory = false;
-      });
-    }
-  }
-
   Future<void> _joinRoom(String inviteCode) async {
     final currentUserId = ref.watch(currentUserIdProvider);
     final userName = ref.read(currentUserNameProvider);
-
-    print("LOGEE joinRoom :userId $currentUserId");
 
     if (currentUserId == null || userName == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -165,18 +125,6 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                   onJoinRoom: _joinRoom,
                   isLoading: _isLoading,
                   formKey: _formKey,
-                ),
-
-                const SizedBox(height: 24),
-
-                // 최근 참가한 방 목록
-                Expanded(
-                  child: RoomHistoryList(
-                    validHistoryRooms: _validHistoryRooms,
-                    isLoading: _isLoadingHistory,
-                    onJoinRoom: _joinRoom,
-                    isJoining: _isLoading,
-                  ),
                 ),
               ],
             ),

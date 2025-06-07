@@ -52,6 +52,7 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
         child: SafeArea(
           child: roomAsync.when(
             data: (room) {
+              print("LOGEE $room");
               if (room == null) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pushAndRemoveUntil(
@@ -64,13 +65,14 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
               }
 
               // 게임이 시작되면 결과 화면으로 이동
-              if (room.status == 'waiting') {
+              if (room.status == 'waiting' && room.hostId != currentUserId ) {
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const WaitingRoomScreen()),
                   (route) => false,
                 );
+                return const Center(child: Text('대기실로 이동합니다.'));
               }
 
               // 게임이 아직 시작되지 않았으면 대기실로 돌아가기
@@ -150,11 +152,13 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
                         child: AnimatedGameButton(
                           show: _showOtherResults,
                           onPressed: () {
-                            if(room.hostId == currentUserId) {
+                            if (room.hostId == currentUserId) {
                               _goWaitingRoom(context, ref, roomId);
                             }
                           },
-                          buttonText: room.hostId == currentUserId ? "대기실로 돌아가기" : "방장이 다음게임을 준비중입니다.",
+                          buttonText: room.hostId == currentUserId
+                              ? "대기실로 돌아가기"
+                              : "방장이 다음게임을 준비중입니다.",
                         )),
                   ],
                 ),
@@ -168,14 +172,29 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
 
   void _goWaitingRoom(
       BuildContext context, WidgetRef ref, String roomId) async {
+    // 🔑 핵심: Provider 참조를 미리 저장
     final repository = ref.read(gameRepositoryProvider);
-    await repository.prepareGame(roomId);
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-          builder: (context) => const WaitingRoomScreen()),
-          (route) => false,
-    );
+    try {
+      // 1. 먼저 게임 준비 작업 완료
+      await repository.prepareGame(roomId);
+
+      // 2. 작업 완료 후 네비게이션 (mounted 체크 필수)
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const WaitingRoomScreen()),
+              (route) => false,
+        );
+      }
+    } catch (e) {
+      // 3. 에러 발생 시 처리
+      print('게임 준비 실패: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('게임 준비 실패: $e')),
+        );
+      }
+    }
   }
 }

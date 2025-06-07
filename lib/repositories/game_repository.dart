@@ -3,7 +3,6 @@ import 'dart:math';
 import '../models/room.dart';
 import '../models/player.dart';
 import '../services/firebase_service.dart';
-import '../services/room_history_service.dart';
 
 class GameRepository {
   final FirebaseService _firebaseService;
@@ -39,11 +38,6 @@ class GameRepository {
     // 직접 toJson() 사용 가능
     await FirebaseService.getRoomRef(roomId).set(room.toJson());
 
-    // 성공시 방 이력에 추가
-    await RoomHistoryService.addRoomToHistory(
-      inviteCode,
-      '방 $inviteCode',
-    );
     return room;
   }
 
@@ -85,12 +79,6 @@ class GameRepository {
       await FirebaseService.getRoomPlayersRef(roomId)
           .child(playerId)
           .set(newPlayer.toJson());
-
-      // 성공시 방 이력에 추가
-      await RoomHistoryService.addRoomToHistory(
-        inviteCode,
-        '방 $inviteCode',
-      );
 
       return roomId;
     } catch (e) {

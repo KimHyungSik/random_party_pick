@@ -135,8 +135,6 @@ class _AnimatedGameButtonState extends State<AnimatedGameButton>
                   width: double.infinity,
                   child: GradientButton(
                     onPressed: () {
-                      // 버튼 눌렀을 때 애니메이션 정지
-                      _pulseController.stop();
                       widget.onPressed();
                     },
                     gradient: const LinearGradient(
