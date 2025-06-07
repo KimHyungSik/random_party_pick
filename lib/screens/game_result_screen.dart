@@ -128,26 +128,33 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
             child: IntrinsicHeight(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Stack(
                   children: [
-                    const Spacer(),
-
-                    // 카드 애니메이션
-                    CardAnimation(
-                      hasRedCard: hasRedCard,
-                      playerName: playerName,
-                      onFlipComplete: () {
-                        setState(() {
-                          _showOtherResults = true;
-                        });
-                      },
+                    // 카드 애니메이션 - 화면 중앙에 배치
+                    Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        height: 400,
+                        child: Center(
+                          child: CardAnimation(
+                            hasRedCard: hasRedCard,
+                            playerName: playerName,
+                            onFlipComplete: () {
+                              setState(() {
+                                _showOtherResults = true;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
                     ),
 
-                    const Spacer(),
-
-                    // 다른 플레이어 결과 (카드 뒤집기 완료 후)
-                    SizedBox(
+                    // 버튼 - 하단 중앙에 배치
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 24, // 하단에서 24px 떨어진 위치
+                      child: SizedBox(
                         width: double.infinity,
                         child: AnimatedGameButton(
                           show: _showOtherResults,
@@ -159,7 +166,9 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
                           buttonText: room.hostId == currentUserId
                               ? "대기실로 돌아가기"
                               : "방장이 다음게임을 준비중입니다.",
-                        )),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

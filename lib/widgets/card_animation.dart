@@ -86,8 +86,8 @@ class _CardAnimationState extends State<CardAnimation>
                   ..setEntry(3, 2, 0.001)
                   ..rotateY(_flipAnimation.value * 3.14159),
                 child: Container(
-                  width: 200,
-                  height: 300,
+                  width: 250,
+                  height: 400,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [

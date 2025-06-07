@@ -139,9 +139,9 @@ class _AnimatedGameButtonState extends State<AnimatedGameButton>
                     },
                     gradient: const LinearGradient(
                       colors: [
-                        Color(0xFF6A5ACD), // 슬레이트 블루
-                        Color(0xFF8A2BE2), // 블루 바이올렛
-                        Color(0xFF9932CC), // 다크 오키드
+                        Color(0xFF4ECDC4), // 터쿠아즈
+                        Color(0xFF44A08D), // 시 그린
+                        Color(0xFF3DECB1), // 민트
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
