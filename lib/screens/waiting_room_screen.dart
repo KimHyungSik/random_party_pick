@@ -195,7 +195,7 @@ class WaitingRoomScreen extends ConsumerWidget {
                   ),
                 ),
                 IconButton(
-                  onPressed: room.redCardCount < playerCount
+                  onPressed: room.redCardCount < playerCount - 1
                       ? () => _updateRedCardCount(context, ref, room.id, room.redCardCount + 1)
                       : null,
                   icon: const Icon(Icons.add_circle_outline),

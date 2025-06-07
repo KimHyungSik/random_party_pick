@@ -106,26 +106,6 @@ class _CardAnimationState extends State<CardAnimation>
             },
           ),
         ),
-
-        const SizedBox(height: 20),
-
-        // 안내 텍스트
-        if (!_isFlipped) ...[
-          const Icon(
-            Icons.touch_app,
-            color: Colors.white70,
-            size: 32,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            '카드를 터치해서 결과를 확인하세요',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white70,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ]
       ],
     );
   }
@@ -151,15 +131,6 @@ class _CardAnimationState extends State<CardAnimation>
               Icons.help_outline,
               size: 80,
               color: Colors.white,
-            ),
-            SizedBox(height: 16),
-            Text(
-              '?',
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
             ),
           ],
         ),
