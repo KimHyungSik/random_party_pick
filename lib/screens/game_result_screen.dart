@@ -52,7 +52,6 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
         child: SafeArea(
           child: roomAsync.when(
             data: (room) {
-              print("LOGEE $room");
               if (room == null) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pushAndRemoveUntil(
@@ -65,13 +64,15 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
               }
 
               // 게임이 시작되면 결과 화면으로 이동
-              if (room.status == 'waiting' && room.hostId != currentUserId ) {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const WaitingRoomScreen()),
-                  (route) => false,
-                );
+              if (room.status == 'waiting' && room.hostId != currentUserId) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WaitingRoomScreen()),
+                    (route) => false,
+                  );
+                });
                 return const Center(child: Text('대기실로 이동합니다.'));
               }
 
@@ -193,7 +194,7 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const WaitingRoomScreen()),
-              (route) => false,
+          (route) => false,
         );
       }
     } catch (e) {

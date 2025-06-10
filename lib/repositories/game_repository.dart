@@ -145,6 +145,7 @@ class GameRepository {
 
   // 플레이어 추방 (방장 전용)
   Future<void> kickPlayer(String roomId, String playerId, String hostId) async {
+    print("LOGEE roomId $roomId, playerId $playerId hostId $hostId");
     try {
       final roomRef = FirebaseService.getRoomRef(roomId);
       final snapshot = await roomRef.once();

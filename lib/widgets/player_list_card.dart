@@ -6,15 +6,17 @@ import '../providers/game_providers.dart';
 class PlayerListCard extends StatelessWidget {
   final Map<String, Player> players;
   final String currentUserId;
-  final bool isHost;
+  final String hostId;
+  final String roomId;
   final Function(BuildContext, String, String, String, String) onKickPlayer;
 
   const PlayerListCard({
     super.key,
     required this.players,
     required this.currentUserId,
-    required this.isHost,
+    required this.hostId,
     required this.onKickPlayer,
+    required this.roomId,
   });
 
   @override
@@ -56,10 +58,10 @@ class PlayerListCard extends StatelessWidget {
                 return PlayerListItem(
                   player: player,
                   isCurrentUser: player.id == currentUserId,
-                  isHost: isHost,
+                  isHost: hostId == player.id,
                   currentUserId: currentUserId,
                   onKickPlayer: onKickPlayer,
-                  roomId: '',  // This will be passed from the parent
+                  roomId: roomId,  // This will be passed from the parent
                 );
               },
             ),
@@ -94,10 +96,10 @@ class PlayerListItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: player.isHost ? Colors.orange.shade50 : Colors.grey.shade50,
+        color: isHost ? Colors.orange.shade50 : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: player.isHost ? Colors.orange.shade200 : Colors.grey.shade200,
+          color: isHost ? Colors.orange.shade200 : Colors.grey.shade200,
         ),
       ),
       constraints: const BoxConstraints(
@@ -106,7 +108,7 @@ class PlayerListItem extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: player.isHost ? Colors.orange : Colors.blue,
+            backgroundColor: isHost ? Colors.orange : Colors.blue,
             child: Text(
               player.name[0].toUpperCase(),
               style: const TextStyle(
@@ -129,7 +131,7 @@ class PlayerListItem extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
-                if (player.isHost)
+                if (isHost)
                   Text(
                     '방장',
                     style: TextStyle(

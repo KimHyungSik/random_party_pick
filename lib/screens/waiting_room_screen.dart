@@ -65,6 +65,17 @@ class WaitingRoomScreen extends ConsumerWidget {
                 return const Center(child: Text('방을 찾을 수 없습니다.'));
               }
 
+              if (!room.players.containsKey(currentUserId)) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        (route) => false,
+                  );
+                });
+                return const Center(child: Text('추방되었습니다.'));
+              }
+
               // 게임이 시작되면 결과 화면으로 이동
               if (room.status == 'playing') {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -127,7 +138,8 @@ class WaitingRoomScreen extends ConsumerWidget {
             child: PlayerListCard(
               players: room.players,
               currentUserId: currentUserId,
-              isHost: isHost,
+              hostId: room.hostId,
+              roomId: room.id,
               onKickPlayer: _showKickDialog,
             ),
           ),
