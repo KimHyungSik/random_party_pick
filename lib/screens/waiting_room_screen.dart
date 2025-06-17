@@ -186,7 +186,7 @@ class WaitingRoomScreen extends ConsumerWidget {
             Row(
               children: [
                 Text(
-                  l10n.numCards + ': ',
+                  '${l10n.numCards}: ',
                   style: const TextStyle(fontSize: 16),
                 ),
                 const Spacer(),
@@ -341,7 +341,7 @@ class WaitingRoomScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.backToHome),
-        content: Text(l10n.backToHome + "?"),
+        content: Text("${l10n.backToHome}?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

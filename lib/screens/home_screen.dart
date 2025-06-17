@@ -4,11 +4,9 @@ import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/game_providers.dart';
-import '../providers/locale_provider.dart';
 import '../widgets/gradient_button.dart';
 import 'join_room_screen.dart';
 import 'waiting_room_screen.dart';
-import 'language_settings_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -103,19 +101,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LanguageSettingsScreen(),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       extendBodyBehindAppBar: true,
       body: Container(
@@ -144,23 +129,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'RandoPick',
+                  l10n.homeScreenTitle,
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.homeScreenTitle,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white70,
-                  ),
-                ),
                 const SizedBox(height: 48),
-
                 // Name input
                 if (userName == null) ...[
                   Card(
