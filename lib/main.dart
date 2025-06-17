@@ -20,45 +20,7 @@ class MyApp extends ConsumerStatefulWidget {
   ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    // 앱이 백그라운드로 가거나 종료될 때
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
-      _handleAppExit();
-    }
-  }
-
-  Future<void> _handleAppExit() async {
-    try {
-      final roomId = ref.read(currentRoomIdProvider);
-      final userId = ref.read(currentUserIdProvider);
-
-      if (roomId != null && userId != null) {
-        final repository = ref.read(gameRepositoryProvider);
-        await repository.leaveRoom(roomId, userId);
-        ref.read(currentRoomIdProvider.notifier).state = null;
-      }
-    } catch (e) {
-      // 로그 출력 또는 에러 처리
-      debugPrint('앱 종료 시 방 나가기 실패: $e');
-    }
-  }
-
+class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
