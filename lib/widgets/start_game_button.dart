@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/gradient_button.dart';
 
 class StartGameButton extends StatelessWidget {
@@ -17,18 +18,20 @@ class StartGameButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     if (isHost) {
       return SizedBox(
         width: double.infinity,
         child: GradientButton(
-          onPressed: playerCount >= 2 
+          onPressed: playerCount >= 2
               ? () => onStartGame(context, roomId)
               : null,
           gradient: const LinearGradient(
             colors: [Colors.red, Colors.pink],
           ),
           child: Text(
-            playerCount >= 2 ? '게임 시작' : '최소 2명 이상 필요',
+            playerCount >= 2 ? l10n.startGame : l10n.waitingForPlayers,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -46,10 +49,10 @@ class StartGameButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey.shade300),
         ),
-        child: const Text(
-          '방장이 게임을 시작하길 기다리는 중...',
+        child: Text(
+          l10n.waiting,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             color: Colors.grey,
           ),

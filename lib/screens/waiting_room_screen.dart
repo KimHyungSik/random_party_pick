@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/room.dart';
 import '../providers/game_providers.dart';
 import '../widgets/room_info_card.dart';
@@ -13,6 +14,7 @@ class WaitingRoomScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final roomId = ref.watch(currentRoomIdProvider);
     final currentUserId = ref.watch(currentUserIdProvider);
 
@@ -31,7 +33,7 @@ class WaitingRoomScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('대기실'),
+        title: Text(l10n.waiting),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -62,7 +64,7 @@ class WaitingRoomScreen extends ConsumerWidget {
                         (route) => false,
                   );
                 });
-                return const Center(child: Text('방을 찾을 수 없습니다.'));
+                return Center(child: Text(l10n.error));
               }
 
               if (!room.players.containsKey(currentUserId)) {
@@ -73,10 +75,10 @@ class WaitingRoomScreen extends ConsumerWidget {
                         (route) => false,
                   );
                 });
-                return const Center(child: Text('추방되었습니다.'));
+                return Center(child: Text(l10n.error));
               }
 
-              // 게임이 시작되면 결과 화면으로 이동
+              // Navigate to result screen if game has started
               if (room.status == 'playing') {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pushReplacement(
@@ -98,11 +100,11 @@ class WaitingRoomScreen extends ConsumerWidget {
                   children: [
                     const Icon(Icons.error, size: 64, color: Colors.red),
                     const SizedBox(height: 16),
-                    Text('오류가 발생했습니다: $error'),
+                    Text('${l10n.error}: $error'),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('돌아가기'),
+                      child: Text(l10n.backToHome),
                     ),
                   ],
                 ),
@@ -159,19 +161,21 @@ class WaitingRoomScreen extends ConsumerWidget {
 
   Widget _buildGameSettingsCard(
       BuildContext context, WidgetRef ref, Room room, int playerCount) {
+    final l10n = AppLocalizations.of(context);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Icon(Icons.settings, color: Colors.blue),
-                SizedBox(width: 8),
+                const Icon(Icons.settings, color: Colors.blue),
+                const SizedBox(width: 8),
                 Text(
-                  '게임 설정',
-                  style: TextStyle(
+                  l10n.settings,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -181,9 +185,9 @@ class WaitingRoomScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Text(
-                  '빨간 카드 개수: ',
-                  style: TextStyle(fontSize: 16),
+                Text(
+                  l10n.numCards + ': ',
+                  style: const TextStyle(fontSize: 16),
                 ),
                 const Spacer(),
                 IconButton(
@@ -215,11 +219,11 @@ class WaitingRoomScreen extends ConsumerWidget {
               ],
             ),
             if (room.redCardCount >= playerCount)
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  '빨간 카드는 현재 인원보다 적어야 합니다.',
-                  style: TextStyle(
+                  l10n.error,
+                  style: const TextStyle(
                     color: Colors.red,
                     fontSize: 12,
                   ),
@@ -238,8 +242,9 @@ class WaitingRoomScreen extends ConsumerWidget {
       await repository.updateRedCardCount(roomId, newCount);
     } catch (e) {
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('설정 변경 실패: $e')),
+          SnackBar(content: Text('${l10n.error}: $e')),
         );
       }
     }
@@ -252,22 +257,23 @@ class WaitingRoomScreen extends ConsumerWidget {
       String playerName,
       String hostId,
       ) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('플레이어 추방'),
-        content: Text('$playerName님을 방에서 추방하시겠습니까?'),
+        title: Text(l10n.error),
+        content: Text('$playerName?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('추방'),
+            child: Text(l10n.error),
           ),
         ],
       ),
@@ -280,13 +286,14 @@ class WaitingRoomScreen extends ConsumerWidget {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$playerName님을 추방했습니다.')),
+            SnackBar(content: Text('$playerName')),
           );
         }
       } catch (e) {
         if (context.mounted) {
+          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('추방 실패: $e')),
+            SnackBar(content: Text('${l10n.error}: $e')),
           );
         }
       }
@@ -295,16 +302,17 @@ class WaitingRoomScreen extends ConsumerWidget {
 
   Future<void> _startGame(
       BuildContext context, String roomId) async {
+    final l10n = AppLocalizations.of(context);
     // Show loading indicator
     final loadingDialog = showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
+      builder: (context) => AlertDialog(
         content: Row(
           children: [
-            CircularProgressIndicator(),
-            SizedBox(width: 20),
-            Text('게임을 시작하는 중...'),
+            const CircularProgressIndicator(),
+            const SizedBox(width: 20),
+            Text(l10n.loading),
           ],
         ),
       ),
@@ -318,8 +326,9 @@ class WaitingRoomScreen extends ConsumerWidget {
       if (context.mounted) Navigator.of(context).pop();
 
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('게임 시작 실패: $e')),
+          SnackBar(content: Text('${l10n.error}: $e')),
         );
       }
     }
@@ -327,19 +336,20 @@ class WaitingRoomScreen extends ConsumerWidget {
 
   Future<void> _showLeaveDialog(BuildContext context, WidgetRef ref,
       String roomId, String playerId) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('방 나가기'),
-        content: const Text('정말로 방을 나가시겠습니까?'),
+        title: Text(l10n.backToHome),
+        content: Text(l10n.backToHome + "?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('나가기'),
+            child: Text(l10n.backToHome),
           ),
         ],
       ),
@@ -360,8 +370,9 @@ class WaitingRoomScreen extends ConsumerWidget {
         }
       } catch (e) {
         if (context.mounted) {
+          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('방 나가기 실패: $e')),
+            SnackBar(content: Text('${l10n.error}: $e')),
           );
         }
       }

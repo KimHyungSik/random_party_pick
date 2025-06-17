@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/game_providers.dart';
+import '../providers/locale_provider.dart';
 import '../widgets/gradient_button.dart';
 import 'join_room_screen.dart';
 import 'waiting_room_screen.dart';
+import 'language_settings_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -60,7 +63,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       final userName = ref.read(currentUserNameProvider);
 
       if (userId == null || userName == null) {
-        throw Exception('사용자 정보가 없습니다.');
+        throw Exception('User information is missing');
       }
 
       final room = await repository.createRoom(
@@ -81,8 +84,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('방 생성 실패: $e')),
+          SnackBar(content: Text('${l10n.error}: $e')),
         );
       }
     } finally {
@@ -92,8 +96,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LanguageSettingsScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      extendBodyBehindAppBar: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -111,42 +135,42 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const SizedBox(height: 60),
-                // 앱 로고/제목
+                const SizedBox(height: 40),
+                // App logo/title
                 const Icon(
                   Icons.casino,
                   size: 80,
                   color: Colors.white,
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'RandoPick',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '랜덤 카드 뽑기 게임',
-                  style: TextStyle(
+                Text(
+                  l10n.homeScreenTitle,
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white70,
                   ),
                 ),
                 const SizedBox(height: 48),
 
-                // 이름 입력
+                // Name input
                 if (userName == null) ...[
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
                         children: [
-                          const Text(
-                            '닉네임을 입력해주세요',
-                            style: TextStyle(
+                          Text(
+                            l10n.enterPlayerName,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
                             ),
@@ -154,9 +178,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           const SizedBox(height: 16),
                           TextField(
                             controller: _nameController,
-                            decoration: const InputDecoration(
-                              labelText: '닉네임',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: l10n.playerName,
+                              border: const OutlineInputBorder(),
                             ),
                             textAlign: TextAlign.center,
                             onSubmitted: (value) {
@@ -174,7 +198,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   _saveUserName(_nameController.text.trim());
                                 }
                               },
-                              child: const Text('확인'),
+                              child: Text(l10n.join),
                             ),
                           ),
                         ],
@@ -182,14 +206,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                 ] else ...[
-                  // 환영 메시지
+                  // Welcome message
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
                         children: [
                           Text(
-                            '안녕하세요, $userName님!',
+                            'Hello, $userName!',
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
@@ -203,7 +227,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 _nameController.clear();
                               });
                             },
-                            child: const Text('닉네임 변경'),
+                            child: Text(l10n.playerName),
                           ),
                         ],
                       ),
@@ -211,7 +235,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // 게임 버튼들
+                  // Game buttons
                   SizedBox(
                     width: double.infinity,
                     child: GradientButton(
@@ -220,10 +244,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         colors: [Colors.orange, Colors.deepOrange],
                       ),
                       child: _isCreatingRoom
-                          ? const Row(
+                          ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
@@ -231,10 +255,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               strokeWidth: 2,
                             ),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text(
-                            '방 생성 중...',
-                            style: TextStyle(
+                            l10n.loading,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -242,14 +266,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ],
                       )
-                          : const Row(
+                          : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add, color: Colors.white),
-                          SizedBox(width: 8),
+                          const Icon(Icons.add, color: Colors.white),
+                          const SizedBox(width: 8),
                           Text(
-                            '방 만들기',
-                            style: TextStyle(
+                            l10n.createRoom,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -274,14 +298,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       gradient: const LinearGradient(
                         colors: [Colors.green, Colors.teal],
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.login, color: Colors.white),
-                          SizedBox(width: 8),
+                          const Icon(Icons.login, color: Colors.white),
+                          const SizedBox(width: 8),
                           Text(
-                            '방 참가하기',
-                            style: TextStyle(
+                            l10n.joinRoom,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,

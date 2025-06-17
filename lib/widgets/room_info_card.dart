@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RoomInfoCard extends StatelessWidget {
   final String inviteCode;
@@ -12,6 +13,8 @@ class RoomInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -20,9 +23,9 @@ class RoomInfoCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  '초대코드',
-                  style: TextStyle(
+                Text(
+                  l10n.roomCode,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -52,7 +55,7 @@ class RoomInfoCard extends StatelessWidget {
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: inviteCode));
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('초대코드가 복사되었습니다')),
+                          SnackBar(content: Text(l10n.copied)),
                         );
                       },
                       icon: const Icon(Icons.copy),

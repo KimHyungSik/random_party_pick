@@ -1,0 +1,45 @@
+{
+  "appTitle": "Red Card Game",
+  "homeScreenTitle": "Random Party Pick",
+  "createRoom": "Create Room",
+  "joinRoom": "Join Room",
+  "settings": "Settings",
+  "playerName": "Player Name",
+  "enterPlayerName": "Enter your name",
+  "roomCode": "Room Code",
+  "enterRoomCode": "Enter room code",
+  "numPlayers": "Number of Players",
+  "numCards": "Number of Cards",
+  "startGame": "Start Game",
+  "cancel": "Cancel",
+  "join": "Join",
+  "create": "Create",
+  "waiting": "Waiting...",
+  "waitingForPlayers": "Waiting for players to join",
+  "shareRoomCode": "Share room code with friends",
+  "copied": "Copied!",
+  "gameResults": "Game Results",
+  "playAgain": "Play Again",
+  "backToHome": "Back to Home",
+  "loading": "Loading...",
+  "error": "Error",
+  "tryAgain": "Try Again",
+  "noCardsPicked": "No cards picked",
+  "youGotCard": "You got {count, plural, =1 {a card} other {{count} cards}}!",
+  "@youGotCard": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "language": "Language",
+  "selectLanguage": "Select Language",
+  "english": "English",
+  "korean": "Korean",
+  "thai": "Thai",
+  "french": "French",
+  "german": "German",
+  "spanish": "Spanish",
+  "japanese": "Japanese"
+}

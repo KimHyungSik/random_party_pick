@@ -1,6 +1,7 @@
 // lib/screens/join_room_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/room.dart';
 import '../providers/game_providers.dart';
 import '../widgets/join_room_form.dart';
@@ -29,8 +30,9 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
     final userName = ref.read(currentUserNameProvider);
 
     if (currentUserId == null || userName == null) {
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('사용자 정보가 없습니다.')),
+        SnackBar(content: Text(l10n.error)),
       );
       return;
     }
@@ -59,8 +61,9 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+          SnackBar(content: Text('${l10n.error}: ${e.toString()}')),
         );
       }
     } finally {
@@ -74,10 +77,12 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text('방 참가'),
+        title: Text(l10n.joinRoom),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -98,10 +103,10 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // 제목
-                const Text(
-                  '방에 참가하기',
-                  style: TextStyle(
+                // Title
+                Text(
+                  l10n.joinRoom,
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -109,9 +114,9 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '초대코드와 닉네임을 입력해주세요',
-                  style: TextStyle(
+                Text(
+                  l10n.enterRoomCode,
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.white70,
                   ),
@@ -119,7 +124,7 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // 입력 폼
+                // Input form
                 JoinRoomForm(
                   inviteCodeController: _inviteCodeController,
                   onJoinRoom: _joinRoom,

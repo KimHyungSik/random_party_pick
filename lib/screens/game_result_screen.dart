@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:random_party_pick/screens/waiting_room_screen.dart';
 import '../models/room.dart';
 import '../providers/game_providers.dart';
@@ -52,6 +53,8 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
         child: SafeArea(
           child: roomAsync.when(
             data: (room) {
+              final l10n = AppLocalizations.of(context);
+
               if (room == null) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pushAndRemoveUntil(
@@ -60,10 +63,10 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
                     (route) => false,
                   );
                 });
-                return const Center(child: Text('방을 찾을 수 없습니다.'));
+                return Center(child: Text(l10n.error));
               }
 
-              // 게임이 시작되면 결과 화면으로 이동
+              // Navigate to results screen if game has started
               if (room.status == 'waiting' && room.hostId != currentUserId) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pushAndRemoveUntil(
@@ -73,10 +76,10 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
                     (route) => false,
                   );
                 });
-                return const Center(child: Text('대기실로 이동합니다.'));
+                return Center(child: Text(l10n.waiting));
               }
 
-              // 게임이 아직 시작되지 않았으면 대기실로 돌아가기
+              // Return to waiting room if the game hasn't started yet
               if (room.status != 'playing') {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.pop(context);
@@ -88,21 +91,24 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
                   context, ref, room, currentUserId, roomId);
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text('오류가 발생했습니다: $error'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('돌아가기'),
-                  ),
-                ],
-              ),
-            ),
+            error: (error, stack) {
+              final l10n = AppLocalizations.of(context);
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, size: 64, color: Colors.red),
+                    const SizedBox(height: 16),
+                    Text('${l10n.error}: $error'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(l10n.backToHome),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -111,9 +117,10 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
 
   Widget _buildGameResult(BuildContext context, WidgetRef ref, Room room,
       String currentUserId, String roomId) {
+    final l10n = AppLocalizations.of(context);
     final currentPlayer = room.players[currentUserId];
     if (currentPlayer == null) {
-      return const Center(child: Text('플레이어 정보를 찾을 수 없습니다.'));
+      return Center(child: Text(l10n.error));
     }
 
     final hasRedCard = currentPlayer.cardColor == "red";
@@ -165,8 +172,8 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
                             }
                           },
                           buttonText: room.hostId == currentUserId
-                              ? "대기실로 돌아가기"
-                              : "방장이 다음게임을 준비중입니다.",
+                              ? l10n.backToHome
+                              : l10n.waiting,
                         ),
                       ),
                     ),
@@ -198,11 +205,12 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
         );
       }
     } catch (e) {
-      // 3. 에러 발생 시 처리
-      print('게임 준비 실패: $e');
+      // 3. Handle errors
+      print('Game preparation failed: $e');
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('게임 준비 실패: $e')),
+          SnackBar(content: Text('${l10n.error}: $e')),
         );
       }
     }

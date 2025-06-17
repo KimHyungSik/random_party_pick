@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/player.dart';
 import '../providers/game_providers.dart';
 
@@ -21,6 +22,7 @@ class PlayerListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final playerCount = players.length;
 
     return Card(
@@ -40,7 +42,7 @@ class PlayerListCard extends StatelessWidget {
                 const Icon(Icons.people, color: Colors.blue),
                 const SizedBox(width: 8),
                 Text(
-                  '참가자 ($playerCount) 명',
+                  '${l10n.numPlayers}: $playerCount',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -92,6 +94,8 @@ class PlayerListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -133,7 +137,7 @@ class PlayerListItem extends StatelessWidget {
                 ),
                 if (isHost)
                   Text(
-                    '방장',
+                    'Host',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.orange.shade700,
@@ -154,7 +158,7 @@ class PlayerListItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
-                '나',
+                'Me',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.green,
@@ -162,7 +166,7 @@ class PlayerListItem extends StatelessWidget {
                 ),
               ),
             ),
-          // 방장만 추방 버튼 표시 (자신은 제외)
+          // Only the host can kick other players
           if (isHost && player.id != currentUserId)
             Padding(
               padding: const EdgeInsets.only(left: 8),
@@ -179,7 +183,7 @@ class PlayerListItem extends StatelessWidget {
                   color: Colors.red,
                   size: 20,
                 ),
-                tooltip: '${player.name} 추방',
+                tooltip: player.name,
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.red.shade50,
                   foregroundColor: Colors.red,

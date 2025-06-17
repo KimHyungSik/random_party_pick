@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/gradient_button.dart';
 
 class JoinRoomForm extends StatefulWidget {
@@ -23,6 +24,8 @@ class JoinRoomForm extends StatefulWidget {
 class _JoinRoomFormState extends State<JoinRoomForm> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -36,11 +39,11 @@ class _JoinRoomFormState extends State<JoinRoomForm> {
             children: [
               TextFormField(
                 controller: widget.inviteCodeController,
-                decoration: const InputDecoration(
-                  labelText: '초대코드',
-                  hintText: '6자리 초대코드를 입력하세요',
-                  prefixIcon: Icon(Icons.vpn_key),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.roomCode,
+                  hintText: l10n.enterRoomCode,
+                  prefixIcon: const Icon(Icons.vpn_key),
+                  border: const OutlineInputBorder(),
                 ),
                 textCapitalization: TextCapitalization.characters,
                 inputFormatters: [
@@ -51,10 +54,10 @@ class _JoinRoomFormState extends State<JoinRoomForm> {
                 ],
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '초대코드를 입력해주세요';
+                    return l10n.enterRoomCode;
                   }
                   if (value.trim().length != 6) {
-                    return '초대코드는 6자리입니다';
+                    return '6 characters required';
                   }
                   return null;
                 },
@@ -80,9 +83,9 @@ class _JoinRoomFormState extends State<JoinRoomForm> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          '방 참가',
-                          style: TextStyle(
+                      : Text(
+                          l10n.join,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
