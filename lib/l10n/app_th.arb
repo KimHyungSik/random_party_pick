@@ -9,7 +9,7 @@
   "roomCode": "รหัสห้อง",
   "enterRoomCode": "ใส่รหัสห้อง",
   "numPlayers": "จำนวนผู้เล่น",
-  "numCards": "จำนวนการ์ด",
+  "numCards": "จำนวนการ์ดแดง",
   "startGame": "เริ่มเกม",
   "cancel": "ยกเลิก",
   "join": "เข้าร่วม",
@@ -26,6 +26,13 @@
   "tryAgain": "ลองอีกครั้ง",
   "noCardsPicked": "ไม่ได้เลือกการ์ด",
   "youGotCard": "คุณได้รับการ์ด {count} ใบ!",
+  "@youGotCard": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "language": "ภาษา",
   "selectLanguage": "เลือกภาษา",
   "english": "อังกฤษ",
@@ -34,5 +41,51 @@
   "french": "ฝรั่งเศส",
   "german": "เยอรมัน",
   "spanish": "สเปน",
-  "japanese": "ญี่ปุ่น"
+  "japanese": "ญี่ปุ่น",
+  "kickPlayer": "ไล่ผู้เล่นออก",
+  "kickPlayerConfirm": "คุณแน่ใจหรือไม่ที่จะไล่ {playerName} ออก?",
+  "@kickPlayerConfirm": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "kick": "ไล่ออก",
+  "playerKicked": "{playerName} ถูกไล่ออกจากห้องแล้ว",
+  "@playerKicked": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveRoom": "ออกจากห้อง",
+  "leaveRoomConfirm": "คุณแน่ใจหรือไม่ที่จะออกจากห้อง?",
+  "leave": "ออก",
+  "roomNotFound": "ไม่พบห้อง",
+  "gameAlreadyStarted": "เกมเริ่มแล้ว",
+  "notEnoughPlayers": "ต้องการผู้เล่นอย่างน้อย 2 คนเพื่อเริ่มเกม",
+  "youGotRedCard": "คุณได้การ์ดแดง!",
+  "youGotGreenCard": "คุณได้การ์ดเขียว!",
+  "redCardHolder": "ผู้ถือการ์ดแดง",
+  "greenCardHolder": "ผู้ถือการ์ดเขียว",
+  "gameFinished": "เกมจบแล้ว!",
+  "newGame": "เกมใหม่",
+  "hostLeft": "เจ้าของห้องออกจากห้องแล้ว",
+  "newHostIs": "{playerName} เป็นเจ้าของห้องคนใหม่แล้ว",
+  "@newHostIs": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "roomClosed": "ห้องถูกปิดแล้ว",
+  "connectionError": "ข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง",
+  "invalidRoomCode": "รหัสห้องไม่ถูกต้อง",
+  "roomIsFull": "ห้องเต็มแล้ว",
+  "nameAlreadyTaken": "ชื่อนี้ถูกใช้แล้วในห้อง",
+  "minimumTwoPlayers": "ต้องการผู้เล่นอย่างน้อย 2 คนเพื่อเริ่มเกม",
+  "redCardCountError": "จำนวนการ์ดแดงต้องน้อยกว่าจำนวนผู้เล่นทั้งหมด"
 }

@@ -9,7 +9,7 @@
   "roomCode": "Code de la Salle",
   "enterRoomCode": "Entrez le code de la salle",
   "numPlayers": "Nombre de Joueurs",
-  "numCards": "Nombre de Cartes",
+  "numCards": "Nombre de Cartes Rouges",
   "startGame": "Commencer la Partie",
   "cancel": "Annuler",
   "join": "Rejoindre",
@@ -26,6 +26,13 @@
   "tryAgain": "Réessayer",
   "noCardsPicked": "Aucune carte tirée",
   "youGotCard": "Vous avez {count, plural, =1 {une carte} other {{count} cartes}} !",
+  "@youGotCard": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "language": "Langue",
   "selectLanguage": "Sélectionnez la Langue",
   "english": "Anglais",
@@ -34,5 +41,51 @@
   "french": "Français",
   "german": "Allemand",
   "spanish": "Espagnol",
-  "japanese": "Japonais"
+  "japanese": "Japonais",
+  "kickPlayer": "Expulser le Joueur",
+  "kickPlayerConfirm": "Êtes-vous sûr de vouloir expulser {playerName} ?",
+  "@kickPlayerConfirm": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "kick": "Expulser",
+  "playerKicked": "{playerName} a été expulsé de la salle",
+  "@playerKicked": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveRoom": "Quitter la Salle",
+  "leaveRoomConfirm": "Êtes-vous sûr de vouloir quitter la salle ?",
+  "leave": "Quitter",
+  "roomNotFound": "Salle introuvable",
+  "gameAlreadyStarted": "La partie a déjà commencé",
+  "notEnoughPlayers": "Au moins 2 joueurs nécessaires pour commencer",
+  "youGotRedCard": "Vous avez tiré la carte ROUGE !",
+  "youGotGreenCard": "Vous avez tiré une carte VERTE !",
+  "redCardHolder": "Porteur de Carte Rouge",
+  "greenCardHolder": "Porteur de Carte Verte",
+  "gameFinished": "Partie Terminée !",
+  "newGame": "Nouvelle Partie",
+  "hostLeft": "L'hôte a quitté la salle",
+  "newHostIs": "{playerName} est maintenant l'hôte",
+  "@newHostIs": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "roomClosed": "La salle a été fermée",
+  "connectionError": "Erreur de connexion. Veuillez réessayer.",
+  "invalidRoomCode": "Code de salle invalide",
+  "roomIsFull": "La salle est pleine",
+  "nameAlreadyTaken": "Ce nom est déjà pris dans la salle",
+  "minimumTwoPlayers": "Au moins 2 joueurs sont nécessaires pour commencer",
+  "redCardCountError": "Le nombre de cartes rouges doit être inférieur au nombre total de joueurs"
 }

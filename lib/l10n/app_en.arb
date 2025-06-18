@@ -9,7 +9,7 @@
   "roomCode": "Room Code",
   "enterRoomCode": "Enter room code",
   "numPlayers": "Number of Players",
-  "numCards": "Number of Cards",
+  "numCards": "Number of Red Cards",
   "startGame": "Start Game",
   "cancel": "Cancel",
   "join": "Join",
@@ -41,5 +41,51 @@
   "french": "French",
   "german": "German",
   "spanish": "Spanish",
-  "japanese": "Japanese"
+  "japanese": "Japanese",
+  "kickPlayer": "Kick Player",
+  "kickPlayerConfirm": "Are you sure you want to kick {playerName}?",
+  "@kickPlayerConfirm": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "kick": "Kick",
+  "playerKicked": "{playerName} has been kicked from the room",
+  "@playerKicked": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveRoom": "Leave Room",
+  "leaveRoomConfirm": "Are you sure you want to leave the room?",
+  "leave": "Leave",
+  "roomNotFound": "Room not found",
+  "gameAlreadyStarted": "Game has already started",
+  "notEnoughPlayers": "Need at least 2 players to start",
+  "youGotRedCard": "You got the RED card!",
+  "youGotGreenCard": "You got a GREEN card!",
+  "redCardHolder": "Red Card Holder",
+  "greenCardHolder": "Green Card Holder",
+  "gameFinished": "Game Finished!",
+  "newGame": "New Game",
+  "hostLeft": "Host has left the room",
+  "newHostIs": "{playerName} is now the host",
+  "@newHostIs": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "roomClosed": "Room has been closed",
+  "connectionError": "Connection error. Please try again.",
+  "invalidRoomCode": "Invalid room code",
+  "roomIsFull": "Room is full",
+  "nameAlreadyTaken": "This name is already taken in the room",
+  "minimumTwoPlayers": "Need at least 2 players to start the game",
+  "redCardCountError": "Red card count must be less than total players"
 }

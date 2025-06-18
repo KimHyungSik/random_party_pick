@@ -1,6 +1,6 @@
 {
   "appTitle": "Rote Karten Spiel",
-  "homeScreenTitle": "Zufällige Party-Auswahl",
+  "homeScreenTitle": "Zufällige Party Auswahl",
   "createRoom": "Raum Erstellen",
   "joinRoom": "Raum Beitreten",
   "settings": "Einstellungen",
@@ -8,24 +8,31 @@
   "enterPlayerName": "Geben Sie Ihren Namen ein",
   "roomCode": "Raumcode",
   "enterRoomCode": "Raumcode eingeben",
-  "numPlayers": "Anzahl der Spieler",
-  "numCards": "Anzahl der Karten",
+  "numPlayers": "Anzahl Spieler",
+  "numCards": "Anzahl Rote Karten",
   "startGame": "Spiel Starten",
   "cancel": "Abbrechen",
   "join": "Beitreten",
   "create": "Erstellen",
   "waiting": "Warten...",
   "waitingForPlayers": "Warten auf andere Spieler",
-  "shareRoomCode": "Teilen Sie den Raumcode mit Freunden",
+  "shareRoomCode": "Raumcode mit Freunden teilen",
   "copied": "Kopiert!",
   "gameResults": "Spielergebnisse",
-  "playAgain": "Nochmal Spielen",
-  "backToHome": "Zurück zum Hauptmenü",
+  "playAgain": "Erneut Spielen",
+  "backToHome": "Zurück zur Startseite",
   "loading": "Laden...",
   "error": "Fehler",
   "tryAgain": "Erneut Versuchen",
   "noCardsPicked": "Keine Karten gezogen",
-  "youGotCard": "Du hast {count, plural, =1 {eine Karte} other {{count} Karten}} bekommen!",
+  "youGotCard": "Sie haben {count, plural, =1 {eine Karte} other {{count} Karten}} erhalten!",
+  "@youGotCard": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "language": "Sprache",
   "selectLanguage": "Sprache Auswählen",
   "english": "Englisch",
@@ -34,5 +41,51 @@
   "french": "Französisch",
   "german": "Deutsch",
   "spanish": "Spanisch",
-  "japanese": "Japanisch"
+  "japanese": "Japanisch",
+  "kickPlayer": "Spieler Entfernen",
+  "kickPlayerConfirm": "Sind Sie sicher, dass Sie {playerName} entfernen möchten?",
+  "@kickPlayerConfirm": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "kick": "Entfernen",
+  "playerKicked": "{playerName} wurde aus dem Raum entfernt",
+  "@playerKicked": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveRoom": "Raum Verlassen",
+  "leaveRoomConfirm": "Sind Sie sicher, dass Sie den Raum verlassen möchten?",
+  "leave": "Verlassen",
+  "roomNotFound": "Raum nicht gefunden",
+  "gameAlreadyStarted": "Das Spiel hat bereits begonnen",
+  "notEnoughPlayers": "Mindestens 2 Spieler benötigt zum Starten",
+  "youGotRedCard": "Sie haben die ROTE Karte erhalten!",
+  "youGotGreenCard": "Sie haben eine GRÜNE Karte erhalten!",
+  "redCardHolder": "Rote Karten Besitzer",
+  "greenCardHolder": "Grüne Karten Besitzer",
+  "gameFinished": "Spiel Beendet!",
+  "newGame": "Neues Spiel",
+  "hostLeft": "Der Host hat den Raum verlassen",
+  "newHostIs": "{playerName} ist jetzt der Host",
+  "@newHostIs": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "roomClosed": "Der Raum wurde geschlossen",
+  "connectionError": "Verbindungsfehler. Bitte versuchen Sie es erneut.",
+  "invalidRoomCode": "Ungültiger Raumcode",
+  "roomIsFull": "Der Raum ist voll",
+  "nameAlreadyTaken": "Dieser Name wird bereits im Raum verwendet",
+  "minimumTwoPlayers": "Mindestens 2 Spieler sind erforderlich, um zu starten",
+  "redCardCountError": "Die Anzahl roter Karten muss geringer sein als die Gesamtzahl der Spieler"
 }

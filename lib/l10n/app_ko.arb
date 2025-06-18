@@ -9,7 +9,7 @@
   "roomCode": "방 코드",
   "enterRoomCode": "방 코드 입력",
   "numPlayers": "플레이어 수",
-  "numCards": "카드 수",
+  "numCards": "레드 카드 수",
   "startGame": "게임 시작",
   "cancel": "취소",
   "join": "참가",
@@ -26,6 +26,13 @@
   "tryAgain": "다시 시도",
   "noCardsPicked": "뽑은 카드 없음",
   "youGotCard": "{count}장의 카드를 뽑았습니다!",
+  "@youGotCard": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "language": "언어",
   "selectLanguage": "언어 선택",
   "english": "영어",
@@ -34,5 +41,51 @@
   "french": "프랑스어",
   "german": "독일어",
   "spanish": "스페인어",
-  "japanese": "일본어"
+  "japanese": "일본어",
+  "kickPlayer": "플레이어 추방",
+  "kickPlayerConfirm": "{playerName}을(를) 추방하시겠습니까?",
+  "@kickPlayerConfirm": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "kick": "추방",
+  "playerKicked": "{playerName}이(가) 방에서 추방되었습니다",
+  "@playerKicked": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveRoom": "방 나가기",
+  "leaveRoomConfirm": "방을 나가시겠습니까?",
+  "leave": "나가기",
+  "roomNotFound": "방을 찾을 수 없습니다",
+  "gameAlreadyStarted": "게임이 이미 시작되었습니다",
+  "notEnoughPlayers": "게임 시작을 위해 최소 2명이 필요합니다",
+  "youGotRedCard": "레드 카드를 뽑았습니다!",
+  "youGotGreenCard": "그린 카드를 뽑았습니다!",
+  "redCardHolder": "레드 카드 보유자",
+  "greenCardHolder": "그린 카드 보유자",
+  "gameFinished": "게임 종료!",
+  "newGame": "새 게임",
+  "hostLeft": "방장이 방을 나갔습니다",
+  "newHostIs": "{playerName}이(가) 새로운 방장이 되었습니다",
+  "@newHostIs": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "roomClosed": "방이 폐쇄되었습니다",
+  "connectionError": "연결 오류입니다. 다시 시도해주세요.",
+  "invalidRoomCode": "잘못된 방 코드입니다",
+  "roomIsFull": "방이 가득 찼습니다",
+  "nameAlreadyTaken": "이미 사용 중인 이름입니다",
+  "minimumTwoPlayers": "게임 시작을 위해 최소 2명의 플레이어가 필요합니다",
+  "redCardCountError": "레드 카드 수는 전체 플레이어 수보다 적어야 합니다"
 }

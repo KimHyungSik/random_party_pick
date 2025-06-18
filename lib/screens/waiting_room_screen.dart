@@ -282,8 +282,8 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.error),
-        content: Text('$playerName?'),
+        title: Text(l10n.kickPlayer),
+        content: Text(l10n.kickPlayerConfirm.replaceFirst('{playerName}', playerName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -294,7 +294,7 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: Text(l10n.error),
+            child: Text(l10n.kick),
           ),
         ],
       ),
@@ -307,7 +307,7 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$playerName')),
+            SnackBar(content: Text(l10n.playerKicked.replaceFirst('{playerName}', playerName))),
           );
         }
       } catch (e) {
@@ -361,8 +361,8 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.backToHome),
-        content: Text("${l10n.backToHome}?"),
+        title: Text(l10n.leaveRoom),
+        content: Text(l10n.leaveRoomConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -370,7 +370,7 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.backToHome),
+            child: Text(l10n.leave),
           ),
         ],
       ),
@@ -380,7 +380,7 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
       setState(() {
         _isLeaving = true; // 플래그 설정
       });
-
+      
       try {
         final repository = ref.read(gameRepositoryProvider);
         await repository.leaveRoom(roomId, playerId);
@@ -390,14 +390,14 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen()),
-                (route) => false,
+            (route) => false,
           );
         }
       } catch (e) {
         setState(() {
           _isLeaving = false; // 에러 시 플래그 리셋
         });
-
+        
         if (context.mounted) {
           final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(

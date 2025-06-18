@@ -9,7 +9,7 @@
   "roomCode": "ルームコード",
   "enterRoomCode": "ルームコードを入力",
   "numPlayers": "プレイヤー数",
-  "numCards": "カード枚数",
+  "numCards": "レッドカード枚数",
   "startGame": "ゲーム開始",
   "cancel": "キャンセル",
   "join": "参加",
@@ -26,6 +26,13 @@
   "tryAgain": "再試行",
   "noCardsPicked": "カードが選ばれていません",
   "youGotCard": "{count}枚のカードを引きました！",
+  "@youGotCard": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "language": "言語",
   "selectLanguage": "言語を選択",
   "english": "英語",
@@ -34,5 +41,51 @@
   "french": "フランス語",
   "german": "ドイツ語",
   "spanish": "スペイン語",
-  "japanese": "日本語"
+  "japanese": "日本語",
+  "kickPlayer": "プレイヤーを除名",
+  "kickPlayerConfirm": "{playerName}を除名しますか？",
+  "@kickPlayerConfirm": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "kick": "除名",
+  "playerKicked": "{playerName}がルームから除名されました",
+  "@playerKicked": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveRoom": "ルームを退出",
+  "leaveRoomConfirm": "ルームを退出しますか？",
+  "leave": "退出",
+  "roomNotFound": "ルームが見つかりません",
+  "gameAlreadyStarted": "ゲームは既に開始されています",
+  "notEnoughPlayers": "ゲーム開始には最低2人必要です",
+  "youGotRedCard": "レッドカードを引きました！",
+  "youGotGreenCard": "グリーンカードを引きました！",
+  "redCardHolder": "レッドカード保持者",
+  "greenCardHolder": "グリーンカード保持者",
+  "gameFinished": "ゲーム終了！",
+  "newGame": "新しいゲーム",
+  "hostLeft": "ホストがルームを退出しました",
+  "newHostIs": "{playerName}が新しいホストになりました",
+  "@newHostIs": {
+    "placeholders": {
+      "playerName": {
+        "type": "String"
+      }
+    }
+  },
+  "roomClosed": "ルームが閉じられました",
+  "connectionError": "接続エラーです。再試行してください。",
+  "invalidRoomCode": "無効なルームコードです",
+  "roomIsFull": "ルームが満員です",
+  "nameAlreadyTaken": "この名前は既に使用されています",
+  "minimumTwoPlayers": "ゲーム開始には最低2人のプレイヤーが必要です",
+  "redCardCountError": "レッドカード数は総プレイヤー数より少なくする必要があります"
 }
