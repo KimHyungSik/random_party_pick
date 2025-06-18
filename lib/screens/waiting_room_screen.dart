@@ -9,23 +9,36 @@ import '../widgets/start_game_button.dart';
 import 'game_result_screen.dart';
 import 'home_screen.dart';
 
-class WaitingRoomScreen extends ConsumerWidget {
+class WaitingRoomScreen extends ConsumerStatefulWidget {
   const WaitingRoomScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WaitingRoomScreen> createState() => _WaitingRoomScreenState();
+}
+
+class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
+  bool _isLeaving = false; // 나가기 플래그 추가
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final roomId = ref.watch(currentRoomIdProvider);
     final currentUserId = ref.watch(currentUserIdProvider);
 
-    if (roomId == null || currentUserId == null) {
+    if ((roomId == null || currentUserId == null) && !_isLeaving) { // 플래그 체크 추가
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-              (route) => false,
-        );
+        if (!_isLeaving) { // 추가 체크
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+                (route) => false,
+          );
+        }
       });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (roomId == null || currentUserId == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -56,24 +69,32 @@ class WaitingRoomScreen extends ConsumerWidget {
           ),
           child: roomAsync.when(
             data: (room) {
-              if (room == null) {
+              if (room == null && !_isLeaving) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                        (route) => false,
-                  );
+                  if (!_isLeaving) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomeScreen()),
+                          (route) => false,
+                    );
+                  }
                 });
                 return Center(child: Text(l10n.error));
               }
 
-              if (!room.players.containsKey(currentUserId)) {
+              if (room == null) {
+                return Center(child: Text(l10n.error));
+              }
+
+              if (!room.players.containsKey(currentUserId) && !_isLeaving) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                        (route) => false,
-                  );
+                  if (!_isLeaving) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomeScreen()),
+                          (route) => false,
+                    );
+                  }
                 });
                 return Center(child: Text(l10n.error));
               }
@@ -130,10 +151,10 @@ class WaitingRoomScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // 게임 설정 (방장만)
-          if (isHost) ...[
+          if (isHost) ...{
             _buildGameSettingsCard(context, ref, room, playerCount),
             const SizedBox(height: 16),
-          ],
+          },
 
           // 플레이어 목록
           Expanded(
@@ -356,6 +377,10 @@ class WaitingRoomScreen extends ConsumerWidget {
     );
 
     if (confirmed == true && context.mounted) {
+      setState(() {
+        _isLeaving = true; // 플래그 설정
+      });
+
       try {
         final repository = ref.read(gameRepositoryProvider);
         await repository.leaveRoom(roomId, playerId);
@@ -369,6 +394,10 @@ class WaitingRoomScreen extends ConsumerWidget {
           );
         }
       } catch (e) {
+        setState(() {
+          _isLeaving = false; // 에러 시 플래그 리셋
+        });
+
         if (context.mounted) {
           final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
