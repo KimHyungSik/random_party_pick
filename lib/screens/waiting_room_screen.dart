@@ -283,7 +283,7 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.kickPlayer),
-        content: Text(l10n.kickPlayerConfirm.replaceFirst('{playerName}', playerName)),
+        content: Text(l10n.kickPlayerConfirm(playerName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -307,7 +307,7 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.playerKicked.replaceFirst('{playerName}', playerName))),
+            SnackBar(content: Text(l10n.playerKicked(playerName))),
           );
         }
       } catch (e) {
