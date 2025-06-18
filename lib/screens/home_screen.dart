@@ -19,6 +19,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? userName;
   final TextEditingController _nameController = TextEditingController();
   bool _isCreatingRoom = false;
+  bool _isEditingName = false;  // 이름 편집 상태 추가
 
   @override
   void initState() {
@@ -49,6 +50,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.read(currentUserNameProvider.notifier).state = name;
     setState(() {
       userName = name;
+      _isEditingName = false;  // 편집 모드 종료
+    });
+  }
+
+  void _startEditingName() {
+    setState(() {
+      _isEditingName = true;
+      _nameController.text = userName ?? '';  // 기존 이름을 텍스트 필드에 설정
+    });
+  }
+
+  void _cancelEditingName() {
+    setState(() {
+      _isEditingName = false;
+      _nameController.text = userName ?? '';  // 원래 이름으로 복원
     });
   }
 
@@ -138,7 +154,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
                 const SizedBox(height: 48),
                 // Name input
-                if (userName == null) ...[
+                if (userName == null || _isEditingName) ...[
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
@@ -166,16 +182,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (_nameController.text.trim().isNotEmpty) {
-                                  _saveUserName(_nameController.text.trim());
-                                }
-                              },
-                              child: Text(l10n.join),
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (_nameController.text.trim().isNotEmpty) {
+                                      _saveUserName(_nameController.text.trim());
+                                    }
+                                  },
+                                  child: Text(l10n.join),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -194,16 +213,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                userName = null;
-                                _nameController.clear();
-                              });
-                            },
-                            child: Text(l10n.playerName),
                           ),
                         ],
                       ),
