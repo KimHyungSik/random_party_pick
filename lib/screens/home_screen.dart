@@ -55,6 +55,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _startEditingName() {
+    print("LOGEE _startEditingName");
     setState(() {
       _isEditingName = true;
       _nameController.text = userName ?? '';  // 기존 이름을 텍스트 필드에 설정
@@ -205,16 +206,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Hello, $userName!',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
+                      child: GestureDetector(
+                        onTap: () => _startEditingName(),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Hello, $userName!',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
