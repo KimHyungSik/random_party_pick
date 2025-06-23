@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:random_party_pick/models/room.dart';
 import '../models/player.dart';
 import '../providers/game_providers.dart';
 
@@ -8,7 +9,7 @@ class PlayerListCard extends StatelessWidget {
   final Map<String, Player> players;
   final String currentUserId;
   final String hostId;
-  final String roomId;
+  final Room room;
   final Function(BuildContext, String, String, String, String) onKickPlayer;
 
   const PlayerListCard({
@@ -17,7 +18,7 @@ class PlayerListCard extends StatelessWidget {
     required this.currentUserId,
     required this.hostId,
     required this.onKickPlayer,
-    required this.roomId,
+    required this.room,
   });
 
   @override
@@ -63,7 +64,7 @@ class PlayerListCard extends StatelessWidget {
                   isHost: hostId == player.id,
                   currentUserId: currentUserId,
                   onKickPlayer: onKickPlayer,
-                  roomId: roomId,  // This will be passed from the parent
+                  room: room,  // This will be passed from the parent
                 );
               },
             ),
@@ -79,7 +80,7 @@ class PlayerListItem extends StatelessWidget {
   final bool isCurrentUser;
   final bool isHost;
   final String currentUserId;
-  final String roomId;
+  final Room room;
   final Function(BuildContext, String, String, String, String) onKickPlayer;
 
   const PlayerListItem({
@@ -88,7 +89,7 @@ class PlayerListItem extends StatelessWidget {
     required this.isCurrentUser,
     required this.isHost,
     required this.currentUserId,
-    required this.roomId,
+    required this.room,
     required this.onKickPlayer,
   });
 
@@ -166,14 +167,13 @@ class PlayerListItem extends StatelessWidget {
                 ),
               ),
             ),
-          // Only the host can kick other players
-          if (isHost && player.id != currentUserId)
+          if (!isCurrentUser && currentUserId == room.hostId)
             Padding(
               padding: const EdgeInsets.only(left: 8),
               child: IconButton(
                 onPressed: () => onKickPlayer(
                   context,
-                  roomId,
+                  room.id,
                   player.id,
                   player.name,
                   currentUserId,

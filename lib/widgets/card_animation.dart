@@ -201,8 +201,8 @@ class _CardAnimationState extends State<CardAnimation>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: widget.hasRedCard
-                ? [Colors.red.shade400, Colors.red.shade700]
-                : [Colors.green.shade400, Colors.green.shade700],
+                ? [Colors.green.shade400, Colors.green.shade700]
+                : [Colors.red.shade400, Colors.red.shade700],
           ),
         ),
         child: Center(
@@ -210,7 +210,7 @@ class _CardAnimationState extends State<CardAnimation>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                widget.hasRedCard ? Icons.close : Icons.check,
+                widget.hasRedCard ? Icons.check : Icons.close,
                 size: 80,
                 color: Colors.white,
               ),

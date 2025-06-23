@@ -206,7 +206,6 @@ class _GameResultScreenState extends ConsumerState<GameResultScreen> {
       }
     } catch (e) {
       // 3. Handle errors
-      print('Game preparation failed: $e');
       if (context.mounted) {
         final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(

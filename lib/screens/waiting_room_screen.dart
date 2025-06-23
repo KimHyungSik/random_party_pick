@@ -162,7 +162,7 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
               players: room.players,
               currentUserId: currentUserId,
               hostId: room.hostId,
-              roomId: room.id,
+              room: room,
               onKickPlayer: _showKickDialog,
             ),
           ),
