@@ -232,10 +232,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   // Game buttons
                   SizedBox(
                     width: double.infinity,
-                    child: TextButton(
-                      style: const ButtonStyle(
-                        backgroundColor:
-                            WidgetStatePropertyAll(Color(0xFF222222)),
+                    child: GradientButton(
+                      gradient: const LinearGradient(
+                        colors: [Colors.orange, Colors.amberAccent],
                       ),
                       onPressed: _isCreatingRoom ? null : _createRoom,
                       child: _isCreatingRoom
