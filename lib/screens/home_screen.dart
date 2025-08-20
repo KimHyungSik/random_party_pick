@@ -19,7 +19,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String? userName;
   final TextEditingController _nameController = TextEditingController();
   bool _isCreatingRoom = false;
-  bool _isEditingName = false;  // 이름 편집 상태 추가
+  bool _isEditingName = false; // 이름 편집 상태 추가
 
   @override
   void initState() {
@@ -50,22 +50,21 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.read(currentUserNameProvider.notifier).state = name;
     setState(() {
       userName = name;
-      _isEditingName = false;  // 편집 모드 종료
+      _isEditingName = false; // 편집 모드 종료
     });
   }
 
   void _startEditingName() {
-    print("LOGEE _startEditingName");
     setState(() {
       _isEditingName = true;
-      _nameController.text = userName ?? '';  // 기존 이름을 텍스트 필드에 설정
+      _nameController.text = userName ?? ''; // 기존 이름을 텍스트 필드에 설정
     });
   }
 
   void _cancelEditingName() {
     setState(() {
       _isEditingName = false;
-      _nameController.text = userName ?? '';  // 원래 이름으로 복원
+      _nameController.text = userName ?? ''; // 원래 이름으로 복원
     });
   }
 
@@ -123,11 +122,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
+              Color(0xFF816DE3),
+              Color(0xFF5F45E3),
+              Color(0xFF644ED0),
             ],
           ),
         ),
@@ -188,8 +188,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    if (_nameController.text.trim().isNotEmpty) {
-                                      _saveUserName(_nameController.text.trim());
+                                    if (_nameController.text
+                                        .trim()
+                                        .isNotEmpty) {
+                                      _saveUserName(
+                                          _nameController.text.trim());
                                     }
                                   },
                                   child: Text(l10n.join),
@@ -222,54 +225,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const Spacer(
+                    flex: 1,
+                  ),
 
                   // Game buttons
                   SizedBox(
                     width: double.infinity,
-                    child: GradientButton(
+                    child: TextButton(
+                      style: const ButtonStyle(
+                        backgroundColor:
+                            WidgetStatePropertyAll(Color(0xFF222222)),
+                      )
                       onPressed: _isCreatingRoom ? null : _createRoom,
-                      gradient: const LinearGradient(
-                        colors: [Colors.orange, Colors.deepOrange],
-                      ),
                       child: _isCreatingRoom
                           ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            l10n.loading,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      )
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.loading,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            )
                           : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.add, color: Colors.white),
-                          const SizedBox(width: 8),
-                          Text(
-                            l10n.createRoom,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.add, color: Colors.white),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.createRoom,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
