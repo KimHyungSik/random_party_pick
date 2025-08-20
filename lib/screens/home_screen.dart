@@ -236,7 +236,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       style: const ButtonStyle(
                         backgroundColor:
                             WidgetStatePropertyAll(Color(0xFF222222)),
-                      )
+                      ),
                       onPressed: _isCreatingRoom ? null : _createRoom,
                       child: _isCreatingRoom
                           ? Row(
