@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/room.dart';
+import '../models/enums.dart';
 import '../providers/game_providers.dart';
+import '../repositories/game_repository.dart';
 import '../widgets/room_info_card.dart';
 import '../widgets/player_list_card.dart';
 import '../widgets/start_game_button.dart';
@@ -17,24 +19,72 @@ class WaitingRoomScreen extends ConsumerStatefulWidget {
 }
 
 class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
-  bool _isLeaving = false; // 나가기 플래그 추가
+  bool _isNavigating = false;
+  bool _isLeaving = false;
+  bool _hasNavigatedToResult = false;
+  bool _hasNavigatedToHome = false;
+
+  @override
+  void dispose() {
+    _isNavigating = false;
+    _isLeaving = false;
+    _hasNavigatedToResult = false;
+    _hasNavigatedToHome = false;
+    super.dispose();
+  }
+
+  void _navigateToHome() {
+    if (_hasNavigatedToHome || _isNavigating) return;
+    _hasNavigatedToHome = true;
+    _isNavigating = true;
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false,
+        ).then((_) {
+          if (mounted) {
+            _isNavigating = false;
+          }
+        });
+      }
+    });
+  }
+
+  void _navigateToResult() {
+    if (_hasNavigatedToResult || _isNavigating) return;
+    _hasNavigatedToResult = true;
+    _isNavigating = true;
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const GameResultScreen(),
+          ),
+        ).then((_) {
+          if (mounted) {
+            _isNavigating = false;
+          }
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final roomId = ref.watch(currentRoomIdProvider);
     final currentUserId = ref.watch(currentUserIdProvider);
-
-    if ((roomId == null || currentUserId == null) && !_isLeaving) { // 플래그 체크 추가
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_isLeaving) { // 추가 체크
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-                (route) => false,
-          );
-        }
-      });
+    
+    // Check connection status
+    final connectionAsync = ref.watch(connectionStateProvider);
+    
+    if ((roomId == null || currentUserId == null) && !_isLeaving) {
+      _navigateToHome();
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -44,97 +94,119 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
 
     final roomAsync = ref.watch(roomStreamProvider(roomId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.waiting),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () =>
-              _showLeaveDialog(context, ref, roomId, currentUserId),
-        ),
-      ),
-      body: SafeArea(
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF667eea),
-                Color(0xFF764ba2),
-              ],
-            ),
+    return WillPopScope(
+      onWillPop: () async {
+        await _showLeaveDialog(context, ref, roomId, currentUserId);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.waiting),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => _showLeaveDialog(context, ref, roomId, currentUserId),
           ),
-          child: roomAsync.when(
-            data: (room) {
-              if (room == null && !_isLeaving) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (!_isLeaving) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()),
-                          (route) => false,
-                    );
-                  }
-                });
-                return Center(child: Text(l10n.error));
-              }
-
-              if (room == null) {
-                return Center(child: Text(l10n.error));
-              }
-
-              if (!room.players.containsKey(currentUserId) && !_isLeaving) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (!_isLeaving) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()),
-                          (route) => false,
-                    );
-                  }
-                });
-                return Center(child: Text(l10n.error));
-              }
-
-              // Navigate to result screen if game has started
-              if (room.status == 'playing') {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GameResultScreen(),
-                    ),
-                  );
-                });
-              }
-
-              return _buildWaitingRoom(context, ref, room, currentUserId);
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error, size: 64, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text('${l10n.error}: $error'),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(l10n.backToHome),
-                    ),
-                  ],
+          actions: [
+            // Connection status indicator
+            connectionAsync.when(
+              data: (isConnected) => Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Icon(
+                  isConnected ? Icons.wifi : Icons.wifi_off,
+                  color: isConnected ? Colors.green : Colors.red,
                 ),
-              );
-            },
+              ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF667eea),
+                  Color(0xFF764ba2),
+                ],
+              ),
+            ),
+            child: roomAsync.when(
+              data: (room) {
+                if (room == null && !_isLeaving) {
+                  _navigateToHome();
+                  return Center(child: Text(l10n.roomClosed));
+                }
+
+                if (room == null) {
+                  return Center(child: Text(l10n.error));
+                }
+
+                // Check if player was kicked
+                if (!room.players.containsKey(currentUserId) && !_isLeaving) {
+                  _navigateToHome();
+                  return Center(child: Text(l10n.error));
+                }
+
+                // Navigate to result screen if game has started
+                if (room.status == RoomStatus.playing && !_hasNavigatedToResult) {
+                  _navigateToResult();
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return _buildWaitingRoom(context, ref, room, currentUserId);
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error, size: 64, color: Colors.red),
+                      const SizedBox(height: 16),
+                      Text('${l10n.error}: ${_getErrorMessage(error, l10n)}'),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () => ref.refresh(roomStreamProvider(roomId)),
+                        icon: const Icon(Icons.refresh),
+                        label: Text(l10n.tryAgain),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(l10n.backToHome),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
     );
+  }
+
+  String _getErrorMessage(Object error, AppLocalizations l10n) {
+    if (error is GameRepositoryException) {
+      switch (error.code) {
+        case 'ROOM_NOT_FOUND':
+          return l10n.roomNotFound;
+        case 'GAME_NOT_WAITING':
+          return l10n.gameAlreadyStarted;
+        case 'NAME_TAKEN':
+          return l10n.nameAlreadyTaken;
+        case 'ROOM_FULL':
+          return l10n.roomIsFull;
+        default:
+          return error.message;
+      }
+    }
+    return error.toString();
   }
 
   Widget _buildWaitingRoom(
@@ -146,17 +218,17 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // 방 정보 카드
+          // Room info card
           RoomInfoCard(inviteCode: room.inviteCode),
           const SizedBox(height: 16),
 
-          // 게임 설정 (방장만)
+          // Game settings (host only)
           if (isHost) ...{
             _buildGameSettingsCard(context, ref, room, playerCount),
             const SizedBox(height: 16),
           },
 
-          // 플레이어 목록
+          // Player list
           Expanded(
             child: PlayerListCard(
               players: room.players,
@@ -168,7 +240,7 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
           ),
           const SizedBox(height: 16),
 
-          // 게임 시작 버튼
+          // Start game button
           StartGameButton(
             isHost: isHost,
             playerCount: playerCount,
@@ -185,6 +257,10 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
     final l10n = AppLocalizations.of(context);
 
     return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -212,10 +288,13 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
                 ),
                 const Spacer(),
                 IconButton(
-                  onPressed: room.redCardCount > 1
+                  onPressed: room.redCardCount > GameConstants.minRedCards
                       ? () => _updateRedCardCount(context, ref, room.id, room.redCardCount - 1)
                       : null,
                   icon: const Icon(Icons.remove_circle_outline),
+                  color: room.redCardCount > GameConstants.minRedCards 
+                      ? Theme.of(context).primaryColor 
+                      : Colors.grey,
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -236,14 +315,17 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
                       ? () => _updateRedCardCount(context, ref, room.id, room.redCardCount + 1)
                       : null,
                   icon: const Icon(Icons.add_circle_outline),
+                  color: room.redCardCount < playerCount - 1 
+                      ? Theme.of(context).primaryColor 
+                      : Colors.grey,
                 ),
               ],
             ),
-            if (room.redCardCount >= playerCount)
+            if (room.redCardCount >= playerCount && playerCount > 0)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  l10n.error,
+                  l10n.redCardCountError,
                   style: const TextStyle(
                     color: Colors.red,
                     fontSize: 12,
@@ -265,7 +347,10 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
       if (context.mounted) {
         final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.error}: $e')),
+          SnackBar(
+            content: Text(_getErrorMessage(e, l10n)),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -307,25 +392,30 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.playerKicked(playerName))),
+            SnackBar(
+              content: Text(l10n.playerKicked(playerName)),
+              backgroundColor: Colors.green,
+            ),
           );
         }
       } catch (e) {
         if (context.mounted) {
-          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${l10n.error}: $e')),
+            SnackBar(
+              content: Text(_getErrorMessage(e, AppLocalizations.of(context))),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }
     }
   }
 
-  Future<void> _startGame(
-      BuildContext context, String roomId) async {
+  Future<void> _startGame(BuildContext context, String roomId) async {
     final l10n = AppLocalizations.of(context);
+    
     // Show loading indicator
-    final loadingDialog = showDialog(
+    showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
@@ -342,14 +432,19 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
     try {
       final repository = ProviderScope.containerOf(context).read(gameRepositoryProvider);
       await repository.startGame(roomId);
-    } catch (e) {
+      
       // Close loading dialog
       if (context.mounted) Navigator.of(context).pop();
-
+    } catch (e) {
+      // Close loading dialog
       if (context.mounted) {
-        final l10n = AppLocalizations.of(context);
+        Navigator.of(context).pop();
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${l10n.error}: $e')),
+          SnackBar(
+            content: Text(_getErrorMessage(e, l10n)),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -370,6 +465,9 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.orange,
+            ),
             child: Text(l10n.leave),
           ),
         ],
@@ -378,7 +476,7 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
 
     if (confirmed == true && context.mounted) {
       setState(() {
-        _isLeaving = true; // 플래그 설정
+        _isLeaving = true;
       });
       
       try {
@@ -395,13 +493,15 @@ class _WaitingRoomScreenState extends ConsumerState<WaitingRoomScreen> {
         }
       } catch (e) {
         setState(() {
-          _isLeaving = false; // 에러 시 플래그 리셋
+          _isLeaving = false;
         });
         
         if (context.mounted) {
-          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${l10n.error}: $e')),
+            SnackBar(
+              content: Text(_getErrorMessage(e, l10n)),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }

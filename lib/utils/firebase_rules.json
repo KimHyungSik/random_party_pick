@@ -1,0 +1,57 @@
+{
+  "rules": {
+    "dev": {
+      ".read": true,
+      "rooms": {
+        "$roomId": {
+          ".write": true,
+          ".validate": "newData.hasChildren(['id', 'hostId', 'inviteCode', 'createdAt', 'status'])",
+          "players": {
+            "$playerId": {
+              ".write": true,
+              ".validate": "newData.hasChildren(['id', 'name', 'joinedAt'])"
+            }
+          },
+          "status": {
+            ".validate": "newData.val() === 'waiting' || newData.val() === 'playing' || newData.val() === 'finished'"
+          },
+          "redCardCount": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() < 20"
+          }
+        }
+      }
+    },
+    "prod": {
+      "rooms": {
+        ".read": true,
+        "$roomId": {
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['id', 'hostId', 'inviteCode', 'createdAt', 'status']) && newData.child('players').exists()",
+          "players": {
+            "$playerId": {
+              ".write": "auth != null && (auth.uid === $playerId || data.parent().child('hostId').val() === auth.uid)",
+              ".validate": "newData.hasChildren(['id', 'name', 'joinedAt'])"
+            }
+          },
+          "status": {
+            ".write": "auth != null && data.parent().child('hostId').val() === auth.uid",
+            ".validate": "newData.val() === 'waiting' || newData.val() === 'playing' || newData.val() === 'finished'"
+          },
+          "redCardCount": {
+            ".write": "auth != null && data.parent().child('hostId').val() === auth.uid",
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() < data.parent().child('players').numChildren()"
+          },
+          "redPlayers": {
+            ".write": "auth != null && data.parent().child('hostId').val() === auth.uid"
+          },
+          "greenPlayers": {
+            ".write": "auth != null && data.parent().child('hostId').val() === auth.uid"
+          },
+          "lastActivityAt": {
+            ".write": "auth != null"
+          }
+        }
+      }
+    }
+  }
+}

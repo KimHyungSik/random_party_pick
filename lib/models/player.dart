@@ -1,9 +1,11 @@
+import 'enums.dart';
+
 class Player {
   final String id;
   final String name;
   final DateTime joinedAt;
   final bool isHost;
-  final String? cardColor; // 'red' or 'green'
+  final CardColor? cardColor;
 
   const Player({
     required this.id,
@@ -13,73 +15,59 @@ class Player {
     this.cardColor,
   });
 
-  // JSON 변환
+  // JSON conversion with better type safety
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
       'joinedAt': joinedAt.toIso8601String(),
       'isHost': isHost,
-      'cardColor': cardColor,
+      'cardColor': cardColor?.value,
     };
   }
 
   factory Player.fromJson(Map<String, dynamic> json) {
-    // Safe parsing with fallbacks
-    String id = '';
-    String name = 'Unknown';
-    DateTime joinedAt = DateTime.now();
-    bool isHost = false;
-    String? cardColor;
-
-    try {
-      id = json['id']?.toString() ?? '';
-      name = json['name']?.toString() ?? 'Unknown';
-
-      if (json['joinedAt'] != null) {
-        if (json['joinedAt'] is String) {
-          try {
-            joinedAt = DateTime.parse(json['joinedAt'] as String);
-          } catch (_) {
-            joinedAt = DateTime.now();
-          }
-        } else if (json['joinedAt'] is DateTime) {
-          joinedAt = json['joinedAt'] as DateTime;
-        }
-      }
-
-      isHost = json['isHost'] == true;
-
-      if (json['cardColor'] != null) {
-        cardColor = json['cardColor'].toString();
-      }
-    } catch (e) {
-      print('Error parsing player data: $e');
-    }
-
+    // Safe parsing with better error handling
     return Player(
-      id: id,
-      name: name,
-      joinedAt: joinedAt,
-      isHost: isHost,
-      cardColor: cardColor,
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? 'Unknown',
+      joinedAt: _parseDateTime(json['joinedAt']),
+      isHost: json['isHost'] == true,
+      cardColor: CardColor.fromString(json['cardColor']?.toString()),
     );
   }
 
-  // copyWith 메서드
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) return DateTime.now();
+    if (value is DateTime) return value;
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (_) {
+        return DateTime.now();
+      }
+    }
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    return DateTime.now();
+  }
+
+  // copyWith method
   Player copyWith({
     String? id,
     String? name,
     DateTime? joinedAt,
     bool? isHost,
-    String? cardColor,
+    CardColor? cardColor,
+    bool clearCardColor = false,
   }) {
     return Player(
       id: id ?? this.id,
       name: name ?? this.name,
       joinedAt: joinedAt ?? this.joinedAt,
       isHost: isHost ?? this.isHost,
-      cardColor: cardColor ?? this.cardColor,
+      cardColor: clearCardColor ? null : (cardColor ?? this.cardColor),
     );
   }
 
@@ -101,6 +89,6 @@ class Player {
 
   @override
   String toString() {
-    return 'Player(id: $id, name: $name, joinedAt: $joinedAt, isHost: $isHost, cardColor: $cardColor)';
+    return 'Player(id: $id, name: $name, isHost: $isHost, cardColor: ${cardColor?.value})';
   }
 }
